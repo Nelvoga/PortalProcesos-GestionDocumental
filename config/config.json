@@ -1,0 +1,19 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "gestion-documental-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/gestionDocumental/GestionDocumentalWebPart.js",
+          "manifest": "./src/webparts/gestionDocumental/GestionDocumentalWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "GestionDocumentalWebPartStrings": "lib/webparts/gestionDocumental/loc/{locale}.js",
+    "ControlStrings": "node_modules/@pnp/spfx-controls-react/lib/loc/{locale}.js"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "portalprocesos-gestiondocumental-client-side-solution",
+    "id": "46831144-6bcc-429c-8ffe-885c69c4798a",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.17.1"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "portalprocesos-gestiondocumental description"
+      },
+      "longDescription": {
+        "default": "portalprocesos-gestiondocumental description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "portalprocesos-gestiondocumental Feature",
+        "description": "The feature that activates elements of the portalprocesos-gestiondocumental solution.",
+        "id": "7870a4ec-6b0d-4a27-a81d-c34455b6cba4",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/portalprocesos-gestiondocumental.sppkg"
+  }
+}
