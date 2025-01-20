@@ -622,7 +622,7 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
                 <div className='row'>
                   <div className='col'><button type="button" className="btn btn-outline-danger" onClick={() => this.setState({ handleShow: true, ModalTitle: "Nuevo Registro", save: 'Guardar' }, () => this.formClear())}>Nuevo Registro</button></div>
                   <div className='col'><button type="button" className="btn btn-outline-danger" onClick={() =>this.viewComunicados()} >Comunicados</button></div>
-                  <div className='col'><button type="button" className="btn btn-outline-danger" onClick={() =>this.viewActualizacion()}>Actualizacion Masiva</button></div>
+                  {/*<div className='col'><button type="button" className="btn btn-outline-danger" onClick={() =>this.viewActualizacion()}>Actualizacion Masiva</button></div>*/}
                 </div>
                 <div className="d-flex flex-column justify-content-start table-responsive">
                   <table className="table table-striped table-sm table-hover" id="tableRegisters">
