@@ -76,11 +76,8 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
       const arrayNorma = new Array();;
 
       const resResolutor = await this.props.pnp.getItemsList('Resolutores', 'ID,Title,Analista/Id,Analista/Title,*', '', 'Analista');
-      const filterResolutor = resResolutor.filter((x: any) => x.Rol.includes('Documentos'));
-      if (filterResolutor.length > 0) {
-        this.setState({ arraySelectResolutors: filterResolutor });
-      }
-
+      this.setState({ arraySelectResolutors: resResolutor });
+      
       const resTypeDocument = await this.props.pnp.getItemsList('TipoDocumento', 'ID,Title,Codigo,*', '', '');
       this.setState({ arraySelectTypeDocument: resTypeDocument });
 
@@ -302,8 +299,8 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
     }
 
     if (this.state.isCheckedA == true) {
-      TypeDocument = 'Link';
-      urlFile = `https://claromovilco.sharepoint.com/sites/PortaldeProcesosyMejoracontinua/DesarrolloProcesos/Gestion%20Documental/${this.state.archivo.name}`;
+      TypeDocument = 'Archivo';
+      //urlFile = `https://claromovilco.sharepoint.com/sites/PortaldeProcesosyMejoracontinua/DesarrolloProcesos/Gestion%20Documental/${this.state.archivo.name}`;
     }
 
     var metadata = {
@@ -394,9 +391,23 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
     let nameFile = this.state.archivo.name;
     this.props.pnp.uploadFile('GestionDocumental/', this.state.archivo, nameFile)
       .then((res: any) => {
-        this.props.pnp.updateFieldByUniqueId(res.data.TimeCreated, 'IdRegistroDocumento', IdRegistro, 'GestionDocumental');
-        Swal.fire("Información!", "Registro Creado", "success");
-      })
+        this.props.pnp.updateFieldByUniqueId(res.data.TimeCreated, 'IdRegistroDocumento', IdRegistro, 'GestionDocumental')
+          .then((res: any) => {
+            Swal.fire("Información!", "Archivo cargado exitosamente!", "success");
+            this.updateURLRegister(IdRegistro)
+          })
+      });
+  }
+
+  public updateURLRegister(IdRegistro: any) {
+    this.props.pnp.getItemsList(`GestionDocumental`, `ID,Title,IdRegistroDocumento,*`, `IdRegistroDocumento eq '${IdRegistro}'`, ``) 
+    .then((res: any) => {
+      var urlFile = res[0].ServerRedirectedEmbedUrl;
+      this.props.pnp.updateItemList('RegistroSig', IdRegistro, { UrlDocumento: urlFile })
+        .then((res: any) => {
+          Swal.fire("Información!", "Registro exitoso!", "success");
+        });
+    });
   }
 
   public formClear() {
@@ -934,3 +945,5 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
     );
   }
 }
+
+
