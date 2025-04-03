@@ -6,7 +6,7 @@ import Select from 'react-select';
 const jQuery = require("jquery");
 
 
-var arrayResponse = new Array();
+//var arrayResponse = new Array();
 interface IComunicadosProps {
     Comunica: any;
     context: any
@@ -112,19 +112,31 @@ export default class ComunicadosDocumentos extends React.Component<IComunicadosP
     }
 
     public searchDocument() {
-        this.props.Comunica.getItemsList(`RegistroSig`, `ID,Title,TipoDocumento,Version,Lider,UrlDocumento,*`, `Title eq '${this.state.itemSearch}'`, ``)
-            .then((resPublic: any) => {
-                if (resPublic.length > 0) {
-                    arrayResponse.push(resPublic[0])
-                }
-                this.setState({ arrayTableCommunication: arrayResponse })
-            });
+        var newArrayResponse = new Array()
+    
+        this.props.Comunica.getItemsList(
+            `RegistroSig`, 
+            `ID,Title,TipoDocumento,Version,Lider,UrlDocumento,*`, 
+            `Title eq '${this.state.itemSearch}'`, 
+            ``
+        ).then((resPublic: any) => {
+            if (resPublic.length > 0) {
+                newArrayResponse.push(resPublic[0]);
+            }
+            this.setState((prevState:any) => ({
+                arrayTableCommunication: [...prevState.arrayTableCommunication, ...newArrayResponse]
+            }));
+        });
     }
+    
+    
 
     public deleteRowTable(rowItem: any) {
-        var filterData = this.state.arrayTableCommunication.filter((item: any) => item.ID !== rowItem);
-        this.setState({ arrayTableCommunication: filterData }, () => { console.log(this.state.arrayTableCommunication); });
+        this.setState((prevState: any) => ({
+            arrayTableCommunication: prevState.arrayTableCommunication.filter((item: any) => item.ID !== rowItem)
+        }));
     }
+    
 
     private _getPeoplePickerItems(items: any[]) {
         if (items.length > 0) {

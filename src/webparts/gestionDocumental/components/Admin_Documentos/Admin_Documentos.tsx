@@ -7,10 +7,12 @@ import Select from 'react-select';
 import ComunicadosDocumentos from '../Comunicados/Comunicados'
 import ActualizacionMasiva from '../Actualizacion_Masiva/ActualizacionMasiva';
 
+
 export interface IAdminDocumentosProps {
   pnp: any;
-  context:any;
-
+  context: any;
+  EmailIntoTas: any;
+  idNameDisplay: any;
 }
 
 
@@ -44,7 +46,11 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
       idEditRegister: 0,
       save: 'Guardar',
       idEliminar: 0,
-      viewTable: true
+      viewTable: true,
+      idResponsable: 0,
+      emailInto: this.props.EmailIntoTas,
+      nameInto: this.props.idNameDisplay,
+      Authorized: false,
     }
   }
 
@@ -52,14 +58,38 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
 
 
   async componentDidMount() {
+    await this.getDataListTask();
     await this.getItems();
     await this.getItemsSelect()
   }
 
-  async getItems() {
+  async getDataListTask(): Promise<void> { 
+    try {
+      const [resResponsable, resResolutor] = await Promise.all([
+        this.props.pnp.getItemsList('Responsables', 'Responsable/Title,Responsable/Id,Responsable/EMail,*', '', 'Responsable'),
+        this.props.pnp.getItemsList('Resolutores', 'ID,Title,Analista/Id,Analista/Title,Analista/EMail,*', '', 'Analista'),
+      ]);
+  
+      const FilterResponsable = resResponsable.find((x: any) => x.Responsable.EMail == this.state.emailInto || x.Responsable.Title == this.state.nameInto);
+      const filterResolutor = resResolutor.find((x: any) => x.Analista.EMail == this.state.emailInto || x.Analista.Title == this.state.nameInto);
+     
+  
+      if (FilterResponsable || filterResolutor) {
+        this.setState({ Authorized: true });
+      } else {
+        console.warn('No se encontró un Responsable válido.');
+      }
+      
+      
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  }
+
+  async getItems() { 
     try {
       jQuery('#tableRegisters').DataTable().destroy();
-      this.props.pnp.getItemsList('RegistroSig')
+      this.props.pnp.getItemsList('RegistroSig','',`EstadoRegistro eq 'Publicado'`, '')
         .then((res: any) => {
           this.setState({ tableRegisterSig: res }, () => { this.IniciaTable('tableRegisters') })
         })
@@ -77,7 +107,7 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
 
       const resResolutor = await this.props.pnp.getItemsList('Resolutores', 'ID,Title,Analista/Id,Analista/Title,*', '', 'Analista');
       this.setState({ arraySelectResolutors: resResolutor });
-      
+
       const resTypeDocument = await this.props.pnp.getItemsList('TipoDocumento', 'ID,Title,Codigo,*', '', '');
       this.setState({ arraySelectTypeDocument: resTypeDocument });
 
@@ -289,125 +319,140 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
     }
   }
 
-  public saveRegister() {
-    jQuery('#tableRegisters').DataTable().destroy();
-    var TypeDocument = '';
-    var urlFile = '';
-    if (this.state.isCheckedL == true) {
-      TypeDocument = 'Link';
-      urlFile = this.state.Url;
-    }
-
-    if (this.state.isCheckedA == true) {
-      TypeDocument = 'Archivo';
-      //urlFile = `https://claromovilco.sharepoint.com/sites/PortaldeProcesosyMejoracontinua/DesarrolloProcesos/Gestion%20Documental/${this.state.archivo.name}`;
-    }
-
-    var metadata = {
-      Title: this.state.titleDocument,
-      Analista: this.state.resolutorDocument,
-      TipoDocumento: this.state.TypeDocumentSelect,
-      Macroproceso: this.state.macroprocessSelect,
-      Proceso: this.state.processSelect,
-      TipoSolucion: this.state.typeSolutionSelect,
-      CodigoDocumento: this.state.codeDocument,
-      Version: this.state.Version,
-      ProcesoSOX: this.state.processSOXSelect,
-      SegmentoRegistro: this.state.arraySegment.join(';'),
-      EstadoRegistro: this.state.Estado,
-      Observaciones: this.state.Observaciones,
-      FechaPublicacion: this.state.datePublication,
-      Norma: this.state.arrayNorma.join(';'),
-      TipoDocumentoRegistro: TypeDocument,
-      UrlDocumento: urlFile,
-      CasoBPM: this.state.caseBMP,
-      Direcciones: this.state.arrayAddress.join(';'),
-      Gerencias: this.state.arrayGerence.join(';'),
-      Lider: this.state.arrayLeader.join(';')
-    };
-
-    if (this.state.idEditRegister > 0) {
-      Swal.fire({
-        title: "¿Está seguro de modificar este registro?",
-        text: "Click para confirmar!",
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Sí, Modificar"
-      }).then((result) => {
+  public async saveRegister() {
+    try {
+      jQuery('#tableRegisters').DataTable().destroy();
+      let TypeDocument = '';
+      let urlFile = '';
+  
+      if (this.state.isCheckedL) {
+        TypeDocument = 'Link';
+        urlFile = this.state.Url;
+      }
+  
+      if (this.state.isCheckedA) {
+        TypeDocument = 'Archivo';
+        urlFile = '';
+      }
+  
+      const metadata = {
+        Title: this.state.titleDocument,
+        Analista: this.state.resolutorDocument,
+        TipoDocumento: this.state.TypeDocumentSelect,
+        Macroproceso: this.state.macroprocessSelect,
+        Proceso: this.state.processSelect,
+        TipoSolucion: this.state.typeSolutionSelect,
+        CodigoDocumento: this.state.codeDocument,
+        Version: this.state.Version,
+        SegmentoRegistro: this.state.arraySegment.join(';'),
+        EstadoRegistro: this.state.Estado,
+        Observaciones: this.state.Observaciones,
+        FechaPublicacion: this.state.datePublication,
+        Norma: this.state.arrayNorma.join(';'),
+        TipoDocumentoRegistro: TypeDocument,
+        UrlDocumento: urlFile,
+        CasoBPM: this.state.caseBMP? this.state.caseBMP : '0',
+        Direcciones: this.state.arrayAddress.join(';'),
+        Gerencias: this.state.arrayGerence.join(';'),
+        Lider: this.state.arrayLeader.join(';'),
+        ProcesoSOX: this.state.processSOXSelect,
+      };
+      console.log("Metadata enviada a SharePoint:", metadata);
+      if (this.state.idEditRegister > 0) {
+        // Modificar registro existente
+        const result = await Swal.fire({
+          title: "¿Está seguro de modificar este registro?",
+          text: "Click para confirmar!",
+          icon: "question",
+          showCancelButton: true,
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Sí, Modificar",
+        });
+  
         if (result.isConfirmed) {
-          this.props.pnp.updateItemList('RegistroSig', this.state.idEditRegister, metadata)
-            .then((res: any) => {
-              if (this.state.isCheckedA == true && this.state.archivo != '') {
-                this.saveFile(this.state.idEditRegister)
-              } else {
-                Swal.fire("Información!", "Registro Modificado exitosamente!", "success");
-              }
-              this.setState({
-                idEditRegister: 0,
-                handleShow: false
-              }, () => {
-                this.getItems();
-
-                this.formClear();
-              });
-            });
+          await this.props.pnp.updateItemList('RegistroSig', this.state.idEditRegister, metadata);
+  
+          if (this.state.isCheckedA && this.state.archivo) {
+            await this.saveFile(this.state.idEditRegister);
+          } else {
+            Swal.fire("Información!", "Registro Modificado exitosamente!", "success");
+          }
+  
+          this.setState({ idEditRegister: 0, handleShow: false });
+          await this.getItems();
+          this.formClear();
         }
-      });
-    } else {
-      Swal.fire({
-        title: "¿Está seguro de crear este registro?",
-        text: "Crear nuevo registro!",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Sí, Crear registro!"
-      }).then((result) => {
+      } else {
+        // Crear nuevo registro
+        const result = await Swal.fire({
+          title: "¿Está seguro de crear este registro?",
+          text: "Crear nuevo registro!",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Sí, Crear registro!",
+        });
+  
         if (result.isConfirmed) {
-          this.props.pnp.insertItemList('RegistroSig', metadata)
-            .then((res: any) => {
-              this.setState({
-                handleShow: false,
-                idEditRegister: 0
-              })
-              if (this.state.isCheckedA == true && this.state.archivo != '') {
-                console.log(res);
-                this.saveFile(res.ID)
-              } else {
-                Swal.fire("Información!", "Registro Creado", "success");
-              }
-              this.saveCounterRegister();
-              this.formClear();
-              this.getItems();
-            });
+          try {
+            const res = await this.props.pnp.insertItemList('RegistroSig', metadata);
+            console.log("Respuesta de SharePoint:", res);
+            this.setState({
+              handleShow: false,
+              idEditRegister: 0
+            })
+            if (this.state.isCheckedA && this.state.archivo) {
+              await this.saveFile(res.ID);
+              Swal.fire("Información!", "Registro Creado", "success");
+            } else {
+              Swal.fire("Información!", "Registro Creado", "success");
+            }
+    
+            await this.saveCounterRegister();
+            this.formClear();
+            this.getItems();
+          } catch (error) {
+            console.error("Error al insertar el registro en SharePoint:", error);
+          }
+  
+          
         }
-      });
+      }
+    } catch (error) {
+      console.error("Error al guardar el registro:", error);
+      Swal.fire("Error!", "Ocurrió un error al guardar el registro.", "error");
     }
   }
 
   public saveFile(IdRegistro: any) {
     let nameFile = this.state.archivo.name;
-    this.props.pnp.uploadFile('GestionDocumental/', this.state.archivo, nameFile)
-      .then((res: any) => {
-        this.props.pnp.updateFieldByUniqueId(res.data.TimeCreated, 'IdRegistroDocumento', IdRegistro, 'GestionDocumental')
-          .then((res: any) => {
-            Swal.fire("Información!", "Archivo cargado exitosamente!", "success");
-            this.updateURLRegister(IdRegistro)
-          })
+
+    this.props.pnp.uploadFileSharePoint('GestionDocumental/', this.state.archivo,IdRegistro, nameFile)
+ 
+      .then((resFile: any) => {
+        console.log("Archivo subido correctamente:", resFile);
+        Swal.fire("Información!", "Archivo cargado exitosamente!", "success");
+
+       
+        return this.updateURLRegister(IdRegistro);
+      })
+      .catch((error: any) => {
+        console.error("Error en el proceso de carga y actualización:", error);
+        Swal.fire("Error!", "Hubo un problema al subir el archivo.", "error");
       });
-  }
+}
 
   public updateURLRegister(IdRegistro: any) {
-    this.props.pnp.getItemsList(`GestionDocumental`, `ID,Title,IdRegistroDocumento,*`, `IdRegistroDocumento eq '${IdRegistro}'`, ``) 
-    .then((res: any) => {
-      var urlFile = res[0].ServerRedirectedEmbedUrl;
-      this.props.pnp.updateItemList('RegistroSig', IdRegistro, { UrlDocumento: urlFile })
-        .then((res: any) => {
-          Swal.fire("Información!", "Registro exitoso!", "success");
-        });
-    });
+    this.props.pnp.getItemsList(`GestionDocumental`, `ID,Title,tipoDocumento,codigoDocumento,IdDocumento,*`, `IdDocumento eq '${IdRegistro}'`, ``)
+      .then((res: any) => {
+        var urlFile = res[0].ServerRedirectedEmbedUrl;
+        this.props.pnp.updateItemList('RegistroSig', IdRegistro, { UrlDocumento: urlFile })
+          .then((res: any) => {
+            Swal.fire("Información!", "Registro exitoso!", "success");
+          });
+      });
   }
 
   public formClear() {
@@ -598,10 +643,10 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
 
   public viewComunicados() {
     this.setState({
-      viewComunicados:!this.state.viewComunicados,
+      viewComunicados: !this.state.viewComunicados,
       viewActualizacion: false,
       viewTable: !this.state.viewTable
-    },()=>{this.IniciaTable('tableRegisters')})
+    }, () => { this.IniciaTable('tableRegisters') })
 
   }
 
@@ -610,15 +655,17 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
       viewComunicados: false,
       viewActualizacion: !this.state.viewActualizacion,
       viewTable: !this.state.viewTable
-    },()=>{this.IniciaTable('tableRegisters')})
-    
+    }, () => { this.IniciaTable('tableRegisters') })
+
   }
 
   public render(): React.ReactElement<IAdminDocumentosProps> {
     return (
       <section>
         {this.state.viewTable == true ?
+        
           <div>
+            {this.state.Authorized ? (
             <div className="container-fluid">
               <div className="form-group row">
                 <div className="tituloFront">
@@ -632,7 +679,7 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
               <div className="row">
                 <div className='row'>
                   <div className='col'><button type="button" className="btn btn-outline-danger" onClick={() => this.setState({ handleShow: true, ModalTitle: "Nuevo Registro", save: 'Guardar' }, () => this.formClear())}>Nuevo Registro</button></div>
-                  <div className='col'><button type="button" className="btn btn-outline-danger" onClick={() =>this.viewComunicados()} >Comunicados</button></div>
+                  <div className='col'><button type="button" className="btn btn-outline-danger" onClick={() => this.viewComunicados()} >Comunicados</button></div>
                   {/*<div className='col'><button type="button" className="btn btn-outline-danger" onClick={() =>this.viewActualizacion()}>Actualizacion Masiva</button></div>*/}
                 </div>
                 <div className="d-flex flex-column justify-content-start table-responsive">
@@ -679,6 +726,7 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
                 </div>
               </div>
             </div>
+            ): <span><i className="bi bi-exclamation-triangle"></i>Usuario no Autorizado!</span>}
             {this.state.handleShow ?
               <div>
                 <Modal className="modal-xl" show={true}>
