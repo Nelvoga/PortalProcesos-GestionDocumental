@@ -1,7 +1,7 @@
 import * as React from 'react';
 const moment = require('moment');
 const jQuery = require("jquery");
-import Swal from 'sweetalert2';
+import Swal, { SweetAlertOptions } from 'sweetalert2';
 import { Modal } from 'react-bootstrap';
 import Select from 'react-select';
 import ComunicadosDocumentos from '../Comunicados/Comunicados'
@@ -51,11 +51,9 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
       emailInto: this.props.EmailIntoTas,
       nameInto: this.props.idNameDisplay,
       Authorized: false,
+      isProcessDisabled: false
     }
   }
-
-
-
 
   async componentDidMount() {
     await this.getDataListTask();
@@ -63,33 +61,33 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
     await this.getItemsSelect()
   }
 
-  async getDataListTask(): Promise<void> { 
+  async getDataListTask(): Promise<void> {
     try {
       const [resResponsable, resResolutor] = await Promise.all([
         this.props.pnp.getItemsList('Responsables', 'Responsable/Title,Responsable/Id,Responsable/EMail,*', '', 'Responsable'),
         this.props.pnp.getItemsList('Resolutores', 'ID,Title,Analista/Id,Analista/Title,Analista/EMail,*', '', 'Analista'),
       ]);
-  
+
       const FilterResponsable = resResponsable.find((x: any) => x.Responsable.EMail == this.state.emailInto || x.Responsable.Title == this.state.nameInto);
       const filterResolutor = resResolutor.find((x: any) => x.Analista.EMail == this.state.emailInto || x.Analista.Title == this.state.nameInto);
-     
-  
+
+
       if (FilterResponsable || filterResolutor) {
         this.setState({ Authorized: true });
       } else {
         console.warn('No se encontró un Responsable válido.');
       }
-      
-      
+
+
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   }
 
-  async getItems() { 
+  async getItems() {
     try {
       jQuery('#tableRegisters').DataTable().destroy();
-      this.props.pnp.getItemsList('RegistroSig','',`EstadoRegistro eq 'Publicado'`, '')
+      this.props.pnp.getItemsList('RegistroSig', '', `EstadoRegistro eq 'Publicado'`, '')
         .then((res: any) => {
           this.setState({ tableRegisterSig: res }, () => { this.IniciaTable('tableRegisters') })
         })
@@ -158,12 +156,21 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
 
 
   public completeProcess(targetProcess: any) {
+    return new Promise((resolve) => {
+      if (this.state.isProcessDisabled == false) {
+        this.props.pnp.getItemsList(`Proceso`, `ID,Title,Macroproceso/Id,Macroproceso/TituloSinNumeral,*`, `Macroproceso/TituloSinNumeral eq '${targetProcess}'`, `Macroproceso`)
+          .then((resProcess: any) => {
+            this.setState({
+              arraySelectProcess: resProcess,
 
-    this.props.pnp.getItemsList(`Proceso`, `ID,Title,Macroproceso/Id,Macroproceso/TituloSinNumeral,*`, `Macroproceso/TituloSinNumeral eq '${targetProcess}'`, `Macroproceso`)
-      .then((resProcess: any) => {
-
-        this.setState({ arraySelectProcess: resProcess })
-      });
+            })
+          });
+      } else {
+        this.setState({
+          arraySelectProcess: []
+        })
+      }
+    });
 
   }
 
@@ -171,7 +178,8 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
     var value = targetInput.value;
     var name = targetInput.name;
     this.setState({
-      [name]: value
+      [name]: value,
+
     })
 
   }
@@ -246,39 +254,47 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
   }
 
   public getTypeDocumentCode(evTd: any) {
+    if (evTd.value == 'Politicas Macroproceso') {
+      this.setState({ isProcessDisabled: true, arraySelectProcess: [],codeProcessFinal: '', codeConsecutive: '' });
+    }else {
+    this.setState({ codeDocumentType: '', codeDocumentMacroproceso: '', codeProcessFinal: '', codeConsecutive: '',isProcessDisabled: false})
+    }
     var codeTypeDocument = this.state.arraySelectTypeDocument.filter((cTD: any) => cTD.Title == evTd.value);
     this.setState({ codeDocumentType: '-' + codeTypeDocument[0].Codigo }, () => { this.completeCodeDocument() })
-
+  
   }
 
   public searchFirtsPartCode(ev: any) {
-
+    this.setState({ codeDocumentMacroproceso: '', codeProcessFinal: '', codeConsecutive: '' })
     var codeSelected = this.state.arraySelectMacroprocess.filter((cS: any) => cS.TituloSinNumeral == ev.value);
     this.setState({ codeDocumentMacroproceso: codeSelected[0].CodigoMacroproceso }, () => { this.completeCodeDocument() })
 
   }
 
   public searchCodeProcessComplete(even: any) {
-    var codeSelectedProcess = this.state.arraySelectProcess.filter((cSP: any) => cSP.Title == even.value)
-    this.setState({ idProcess: codeSelectedProcess[0].ID })
-    var codeProcess = codeSelectedProcess[0].CodigoProceso;
-    if (this.state.TypeDocumentSelect == 'Politicas') {
-      this.setState({ codeConsecutive: codeSelectedProcess[0].contPoliticas + 1 })
-      this.setState({ flagPolitica: true })
+    if (this.state.TypeDocumentSelect == 'Politicas Macroproceso') {
+      this.setState({ codeProcessFinal: '', codeConsecutive: '', flagPolitica: false, flagProcedimiento: false, flagManual: false})
+    } else {
+      var codeSelectedProcess = this.state.arraySelectProcess.filter((cSP: any) => cSP.Title == even.value)
+      this.setState({ idProcess: codeSelectedProcess[0].ID })
+      var codeProcess = codeSelectedProcess[0].CodigoProceso;
+      if (this.state.TypeDocumentSelect == 'Politicas') {
+        this.setState({ codeConsecutive: codeSelectedProcess[0].contPoliticas + 1 })
+        this.setState({ flagPolitica: true,isProcessDisabled: false })
+      }
+
+      if (this.state.TypeDocumentSelect == 'Procedimiento') {
+        this.setState({ codeConsecutive: codeSelectedProcess[0].contProcedimiento + 1 });
+        this.setState({ flagProcedimiento: true,isProcessDisabled: false })
+      }
+
+      if (this.state.TypeDocumentSelect == 'Manual') {
+        this.setState({ codeConsecutive: codeSelectedProcess[0].contManual + 1 });
+        this.setState({ flagManual: true,isProcessDisabled: false })
+      }
+
+      this.setState({ codeProcessFinal: codeProcess }, () => { this.completeCodeDocument() })
     }
-
-    if (this.state.TypeDocumentSelect == 'Procedimiento') {
-      this.setState({ codeConsecutive: codeSelectedProcess[0].contProcedimiento + 1 });
-      this.setState({ flagProcedimiento: true })
-    }
-
-    if (this.state.TypeDocumentSelect == 'Manual') {
-      this.setState({ codeConsecutive: codeSelectedProcess[0].contManual + 1 });
-      this.setState({ flagManual: true })
-    }
-
-    this.setState({ codeProcessFinal: codeProcess }, () => { this.completeCodeDocument() })
-
   }
 
   public completeCodeDocument() {
@@ -292,7 +308,7 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
     if (this.state.resolutorDocument == 'Seleccione...' || this.state.resolutorDocument == null) validate.push({ campo: "Analista", descripcion: "Seleccione el analista" });
     if (this.state.TypeDocumentSelect == 'Seleccione...' || this.state.TypeDocumentSelect == null) validate.push({ campo: "Tipo de Documento", descripcion: "Seleccione el tipo de documento" });
     if (this.state.macroprocessSelect == 'Seleccione...' || this.state.macroprocessSelect == null) validate.push({ campo: "Macroproceso", descripcion: "Seleccione el macroproceso" });
-    if (this.state.processSelect == 'Seleccione...' || this.state.processSelect == null) validate.push({ campo: "Proceso", descripcion: "Seleccione el proceso" });
+    if (this.state.processSelect == 'Seleccione...' || this.state.processSelect == null) { validate.push({ campo: "Proceso", descripcion: "Seleccione el proceso" }); }
     if (this.state.typeSolutionSelect == 'Seleccione...' || this.state.typeSolutionSelect == null) validate.push({ campo: "Tipo de Solución", descripcion: "Seleccione el tipo de solución" });
     if (this.state.Version == '') validate.push({ campo: "Versión", descripcion: "Digite la version del documento" });
     if (this.state.processSOXSelect == 'Seleccione...' || this.state.processSOXSelect == null) validate.push({ campo: "Proceso SOX", descripcion: "Seleccione el proceso SOX" });
@@ -321,20 +337,9 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
 
   public async saveRegister() {
     try {
-      jQuery('#tableRegisters').DataTable().destroy();
-      let TypeDocument = '';
-      let urlFile = '';
-  
-      if (this.state.isCheckedL) {
-        TypeDocument = 'Link';
-        urlFile = this.state.Url;
-      }
-  
-      if (this.state.isCheckedA) {
-        TypeDocument = 'Archivo';
-        urlFile = '';
-      }
-  
+      let TypeDocument = this.state.isCheckedL ? 'Link' : (this.state.isCheckedA ? 'Archivo' : '');
+      let urlFile = this.state.isCheckedL ? this.state.Url : '';
+
       const metadata = {
         Title: this.state.titleDocument,
         Analista: this.state.resolutorDocument,
@@ -351,98 +356,107 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
         Norma: this.state.arrayNorma.join(';'),
         TipoDocumentoRegistro: TypeDocument,
         UrlDocumento: urlFile,
-        CasoBPM: this.state.caseBMP? this.state.caseBMP : '0',
+        CasoBPM: this.state.caseBMP || '0',
         Direcciones: this.state.arrayAddress.join(';'),
         Gerencias: this.state.arrayGerence.join(';'),
         Lider: this.state.arrayLeader.join(';'),
         ProcesoSOX: this.state.processSOXSelect,
       };
+
       console.log("Metadata enviada a SharePoint:", metadata);
-      if (this.state.idEditRegister > 0) {
-        // Modificar registro existente
-        const result = await Swal.fire({
+
+      // Definir el mensaje de confirmación
+      const confirmMessage: SweetAlertOptions = this.state.idEditRegister > 0 ?
+        {
           title: "¿Está seguro de modificar este registro?",
           text: "Click para confirmar!",
           icon: "question",
           showCancelButton: true,
           confirmButtonColor: "#3085d6",
           cancelButtonColor: "#d33",
-          confirmButtonText: "Sí, Modificar",
-        });
-  
-        if (result.isConfirmed) {
-          await this.props.pnp.updateItemList('RegistroSig', this.state.idEditRegister, metadata);
-  
-          if (this.state.isCheckedA && this.state.archivo) {
-            await this.saveFile(this.state.idEditRegister);
-          } else {
-            Swal.fire("Información!", "Registro Modificado exitosamente!", "success");
-          }
-  
-          this.setState({ idEditRegister: 0, handleShow: false });
-          await this.getItems();
-          this.formClear();
-        }
-      } else {
-        // Crear nuevo registro
-        const result = await Swal.fire({
+          confirmButtonText: "Sí, Modificar"
+        } :
+        {
           title: "¿Está seguro de crear este registro?",
           text: "Crear nuevo registro!",
           icon: "warning",
           showCancelButton: true,
           confirmButtonColor: "#3085d6",
           cancelButtonColor: "#d33",
-          confirmButtonText: "Sí, Crear registro!",
-        });
-  
-        if (result.isConfirmed) {
-          try {
-            const res = await this.props.pnp.insertItemList('RegistroSig', metadata);
-            console.log("Respuesta de SharePoint:", res);
-            this.setState({
-              handleShow: false,
-              idEditRegister: 0
-            })
-            if (this.state.isCheckedA && this.state.archivo) {
-              await this.saveFile(res.ID);
-              Swal.fire("Información!", "Registro Creado", "success");
-            } else {
-              Swal.fire("Información!", "Registro Creado", "success");
-            }
-    
-            await this.saveCounterRegister();
-            this.formClear();
-            this.getItems();
-          } catch (error) {
-            console.error("Error al insertar el registro en SharePoint:", error);
-          }
-  
-          
-        }
+          confirmButtonText: "Sí, Crear registro!"
+        };
+
+      const result = await Swal.fire(confirmMessage);
+      if (!result.isConfirmed) return;
+
+      // Mostrar mensaje de carga mientras se procesa la solicitud
+      Swal.fire({
+        title: "Procesando...",
+        text: "Por favor, espere mientras se completa la operación.",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      let response;
+      if (this.state.idEditRegister > 0) {
+        // Modificar registro existente
+        await this.props.pnp.updateItemList('RegistroSig', this.state.idEditRegister, metadata);
+        response = { ID: this.state.idEditRegister };
+      } else {
+        // Crear nuevo registro
+        response = await this.props.pnp.insertItemList('RegistroSig', metadata);
+        console.log("Respuesta de SharePoint:", response);
       }
+
+      // Si es un archivo, guardarlo en paralelo
+      const fileUploadPromise = (this.state.isCheckedA && this.state.archivo) ? this.saveFile(response.ID) : Promise.resolve();
+
+      // Ejecutar tareas en paralelo
+      await Promise.all([
+        fileUploadPromise,
+        this.saveCounterRegister(),
+        this.getItems()
+      ]);
+
+      // Reemplazar el mensaje de carga por la confirmación final
+      await Swal.fire({
+        title: "Información!",
+        text: this.state.idEditRegister > 0 ? "Registro Modificado exitosamente!" : "Registro Creado",
+        icon: "success"
+      });
+
+      // Limpiar formulario
+      this.formClear();
+      this.setState({ idEditRegister: 0, handleShow: false });
+
     } catch (error) {
       console.error("Error al guardar el registro:", error);
-      Swal.fire("Error!", "Ocurrió un error al guardar el registro.", "error");
+      await Swal.fire({
+        title: "Error!",
+        text: "Ocurrió un error al guardar el registro.",
+        icon: "error"
+      });
     }
   }
+
 
   public saveFile(IdRegistro: any) {
     let nameFile = this.state.archivo.name;
 
-    this.props.pnp.uploadFileSharePoint('GestionDocumental/', this.state.archivo,IdRegistro, nameFile)
- 
+    this.props.pnp.uploadFileSharePoint('GestionDocumental/', this.state.archivo, IdRegistro, nameFile)
+
       .then((resFile: any) => {
         console.log("Archivo subido correctamente:", resFile);
         Swal.fire("Información!", "Archivo cargado exitosamente!", "success");
 
-       
+
         return this.updateURLRegister(IdRegistro);
       })
       .catch((error: any) => {
         console.error("Error en el proceso de carga y actualización:", error);
         Swal.fire("Error!", "Hubo un problema al subir el archivo.", "error");
       });
-}
+  }
 
   public updateURLRegister(IdRegistro: any) {
     this.props.pnp.getItemsList(`GestionDocumental`, `ID,Title,tipoDocumento,codigoDocumento,IdDocumento,*`, `IdDocumento eq '${IdRegistro}'`, ``)
@@ -455,7 +469,7 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
       });
   }
 
-  public formClear() {
+  public formClear = () => {
     this.setState({
       titleDocument: '',
       resolutorDocument: 'Seleccione...',
@@ -494,6 +508,7 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
       MedatacounterTypeDocument = {
         contPoliticas: this.state.codeconsecutive
       }
+
     }
 
     if (this.state.flagProcedimiento == true) {
@@ -516,7 +531,9 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
 
   public editRegister(item: any) {
     this.formClear();
-    this.completeProcess(item.Macroproceso);
+    this.completeProcess(item.Macroproceso).then(() => {
+      this.setState({ processSelect: item.Proceso });
+    });
     //editar seleccion multiple "segmento,direcciones,gerencias,Lider"
     var segmentRegistro = this.fractionateSelectMultiple(item.SegmentoRegistro);
     var standard = this.fractionateSelectMultiple(item.Norma);
@@ -529,6 +546,7 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
     var Gerences = item.Gerencias ? item.Gerencias.split(';') : [];
     var LeaderEdit = item.Lider ? item.Lider.split(';') : [];
 
+    const isProcessDisabled = item.TipoDocumento === 'Politicas Macroproceso';
 
     //Editar si es link o archivo
     if (item.TipoDocumentoRegistro == "Link") {
@@ -571,7 +589,7 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
       editLeader: Leader,
       arrayLeader: LeaderEdit,
       idEditRegister: item.ID,
-
+      isProcessDisabled: isProcessDisabled,
     })
   }
 
@@ -659,78 +677,82 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
 
   }
 
+  public closeModal = () => {
+    this.setState({ handleShow: false }, () => this.formClear());
+  };
+
   public render(): React.ReactElement<IAdminDocumentosProps> {
     return (
       <section>
         {this.state.viewTable == true ?
-        
+
           <div>
             {this.state.Authorized ? (
-            <div className="container-fluid">
-              <div className="form-group row">
-                <div className="tituloFront">
-                  <h4 className="tituloF">
-                    Gestión Documental
-                  </h4>
+              <div className="container-fluid">
+                <div className="form-group row">
+                  <div className="tituloFront">
+                    <h4 className="tituloF">
+                      Gestión Documental
+                    </h4>
+                  </div>
                 </div>
-              </div>
-              <br />
-              <br />
-              <div className="row">
-                <div className='row'>
-                  <div className='col'><button type="button" className="btn btn-outline-danger" onClick={() => this.setState({ handleShow: true, ModalTitle: "Nuevo Registro", save: 'Guardar' }, () => this.formClear())}>Nuevo Registro</button></div>
-                  <div className='col'><button type="button" className="btn btn-outline-danger" onClick={() => this.viewComunicados()} >Comunicados</button></div>
-                  {/*<div className='col'><button type="button" className="btn btn-outline-danger" onClick={() =>this.viewActualizacion()}>Actualizacion Masiva</button></div>*/}
-                </div>
-                <div className="d-flex flex-column justify-content-start table-responsive">
-                  <table className="table table-striped table-sm table-hover" id="tableRegisters">
-                    <thead className="table-secondary">
-                      <tr>
-                        <th scope="col">Nombre del Documento</th>
-                        <th scope="col">Tipo de Documento</th>
-                        <th scope="col">Analista</th>
-                        <th scope="col">Proceso</th>
-                        <th scope="col">Código del Documento</th>
-                        <th scope="col">Fecha de Publicación</th>
-                        <th scope="col">Opciones</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {this.state.tableRegisterSig && this.state.tableRegisterSig.length > 0 ?
-                        this.state.tableRegisterSig.map((items: any) => (
+                <br />
+                <br />
+                <div className="row">
+                  <div className='row'>
+                    <div className='col'><button type="button" className="btn btn-outline-danger" onClick={() => this.setState({ handleShow: true, ModalTitle: "Nuevo Registro", save: 'Guardar' }, () => this.formClear())}>Nuevo Registro</button></div>
+                    <div className='col'><button type="button" className="btn btn-outline-danger" onClick={() => this.viewComunicados()} >Comunicados</button></div>
+                    {/*<div className='col'><button type="button" className="btn btn-outline-danger" onClick={() =>this.viewActualizacion()}>Actualizacion Masiva</button></div>*/}
+                  </div>
+                  <div className="d-flex flex-column justify-content-start table-responsive">
+                    <table className="table table-striped table-sm table-hover" id="tableRegisters">
+                      <thead className="table-secondary">
+                        <tr>
+                          <th scope="col">Nombre del Documento</th>
+                          <th scope="col">Tipo de Documento</th>
+                          <th scope="col">Analista</th>
+                          <th scope="col">Proceso</th>
+                          <th scope="col">Código del Documento</th>
+                          <th scope="col">Fecha de Publicación</th>
+                          <th scope="col">Opciones</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {this.state.tableRegisterSig && this.state.tableRegisterSig.length > 0 ?
+                          this.state.tableRegisterSig.map((items: any) => (
 
-                          <tr id={items.ID}>
-                            <td>{items.Title}</td>
-                            <td>{items.TipoDocumento}</td>
-                            <td>{items.Analista}</td>
-                            <td>{items.Proceso}</td>
-                            <td>{items.CodigoDocumento}</td>
-                            <td>{moment(items.FechaPublicacion).format('DD/MM/YYYY')}</td>
-                            <td className='optionField'><div onClick={() => { this.editRegister(items), this.setState({ handleShow: true, ModalTitle: 'Modificar Registro', save: 'Modificar' }) }} >
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-pencil-fill" viewBox="0 0 16 16">
-                                <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z" />
-                              </svg>
-                            </div>
-                              <div onClick={() => { this.eliminateRegister(items.ID) }}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-trash3-fill" viewBox="0 0 16 16">
-                                  <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5" />
+                            <tr id={items.ID}>
+                              <td>{items.Title}</td>
+                              <td>{items.TipoDocumento}</td>
+                              <td>{items.Analista}</td>
+                              <td>{items.Proceso}</td>
+                              <td>{items.CodigoDocumento}</td>
+                              <td>{moment(items.FechaPublicacion).format('DD/MM/YYYY')}</td>
+                              <td className='optionField'><div onClick={() => { this.editRegister(items), this.setState({ handleShow: true, ModalTitle: 'Modificar Registro', save: 'Modificar' }) }} >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-pencil-fill" viewBox="0 0 16 16">
+                                  <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z" />
                                 </svg>
                               </div>
-                            </td>
-                          </tr>
-                        ))
-                        : null
-                      }
-                    </tbody>
-                  </table>
+                                <div onClick={() => { this.eliminateRegister(items.ID) }}>
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-trash3-fill" viewBox="0 0 16 16">
+                                    <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5" />
+                                  </svg>
+                                </div>
+                              </td>
+                            </tr>
+                          ))
+                          : null
+                        }
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
-            </div>
-            ): <span><i className="bi bi-exclamation-triangle"></i>Usuario no Autorizado!</span>}
+            ) : <span><i className="bi bi-exclamation-triangle"></i>Usuario no Autorizado!</span>}
             {this.state.handleShow ?
               <div>
                 <Modal className="modal-xl" show={true}>
-                  <Modal.Header closeButton onClick={() => this.setState({ handleShow: false })}>
+                  <Modal.Header closeButton onClick={this.closeModal}>
                     <Modal.Title>
                       <div className='tituloFront'>
                         <h5 className='tituloFModal'>{this.state.ModalTitle}</h5>
@@ -783,7 +805,8 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
                     </div>
                     <div className="form-group">
                       <label >Proceso<span className="inputRequired">*</span></label>
-                      <select className="form-select NewRequired" name="processSelect" value={this.state.processSelect} onChange={(e) => { this.inputChange(e.target), this.searchCodeProcessComplete(e.target) }}>
+                      <select className="form-select NewRequired" name="processSelect" value={this.state.processSelect} onChange={(e) => { this.inputChange(e.target), this.searchCodeProcessComplete(e.target) }}
+                        disabled={this.state.isProcessDisabled}>
                         <option value="Seleccione..." disabled selected>Seleccione..</option>
                         {this.state.arraySelectProcess && this.state.arraySelectProcess.length > 0 ?
                           this.state.arraySelectProcess.map((Process: any) => (
@@ -970,7 +993,7 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
 
                   </Modal.Body>
                   <Modal.Footer>
-                    <button className='btn btn-outline-secondary' onClick={() => this.setState({ handleShow: false })}>
+                    <button className='btn btn-outline-secondary' onClick={this.closeModal}>
                       Cerrar
                     </button>
                     <button className='btn btn-outline-danger' value={this.state.save} onClick={() => { this.validateInput() }}>

@@ -37,8 +37,6 @@ export class PNP {
     sp.setup({
       spfxContext: this.context
     });
-
-    console.log("PnP inicializado correctamente:", sp);
 }
 
   public getItemsList(
