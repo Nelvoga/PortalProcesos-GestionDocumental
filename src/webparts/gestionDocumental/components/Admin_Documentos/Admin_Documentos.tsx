@@ -308,7 +308,12 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
     if (this.state.resolutorDocument == 'Seleccione...' || this.state.resolutorDocument == null) validate.push({ campo: "Analista", descripcion: "Seleccione el analista" });
     if (this.state.TypeDocumentSelect == 'Seleccione...' || this.state.TypeDocumentSelect == null) validate.push({ campo: "Tipo de Documento", descripcion: "Seleccione el tipo de documento" });
     if (this.state.macroprocessSelect == 'Seleccione...' || this.state.macroprocessSelect == null) validate.push({ campo: "Macroproceso", descripcion: "Seleccione el macroproceso" });
-    if (this.state.processSelect == 'Seleccione...' || this.state.processSelect == null) { validate.push({ campo: "Proceso", descripcion: "Seleccione el proceso" }); }
+    
+    if(this.state.TypeDocumentSelect !== 'Politicas Macroproceso'){
+      if (this.state.processSelect == 'Seleccione...' || 
+          this.state.processSelect == null
+      ) { validate.push({ campo: "Proceso", descripcion: "Seleccione el proceso" }); }
+    }
     if (this.state.typeSolutionSelect == 'Seleccione...' || this.state.typeSolutionSelect == null) validate.push({ campo: "Tipo de Solución", descripcion: "Seleccione el tipo de solución" });
     if (this.state.Version == '') validate.push({ campo: "Versión", descripcion: "Digite la version del documento" });
     if (this.state.processSOXSelect == 'Seleccione...' || this.state.processSOXSelect == null) validate.push({ campo: "Proceso SOX", descripcion: "Seleccione el proceso SOX" });
@@ -328,7 +333,7 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
         title: "Información!",
         html: "Los siguientes campos no contienen información:<br><br>" +
           validate.map(item => `<span>${item.campo}: ${item.descripcion}</span>`).join('<br>'),
-        icon: "success"
+        icon: "error"
       });
     } else {
       this.saveRegister();
