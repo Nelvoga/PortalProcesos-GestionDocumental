@@ -68,8 +68,8 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
         this.props.pnp.getItemsList('Resolutores', 'ID,Title,Analista/Id,Analista/Title,Analista/EMail,*', '', 'Analista'),
       ]);
 
-      const FilterResponsable = resResponsable.find((x: any) => x.Responsable.EMail == this.state.emailInto || x.Responsable.Title == this.state.nameInto);
-      const filterResolutor = resResolutor.find((x: any) => x.Analista.EMail == this.state.emailInto || x.Analista.Title == this.state.nameInto);
+      const FilterResponsable = resResponsable.find((x: any) => x.Responsable.EMail === this.state.emailInto || x.Responsable.Title === this.state.nameInto);
+      const filterResolutor = resResolutor.find((x: any) => x.Analista.EMail === this.state.emailInto || x.Analista.Title === this.state.nameInto);
 
 
       if (FilterResponsable || filterResolutor) {
@@ -157,7 +157,7 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
 
   public completeProcess(targetProcess: any) {
     return new Promise((resolve) => {
-      if (this.state.isProcessDisabled == false) {
+      if (this.state.isProcessDisabled === false) {
         this.props.pnp.getItemsList(`Proceso`, `ID,Title,Macroproceso/Id,Macroproceso/TituloSinNumeral,*`, `Macroproceso/TituloSinNumeral eq '${targetProcess}'`, `Macroproceso`)
           .then((resProcess: any) => {
             this.setState({
@@ -190,19 +190,19 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
       var value = option.value;
       arraySelectFront.push(value)
     })
-    if (flagActive.name == 'segmentSelect') {
+    if (flagActive.name === 'segmentSelect') {
       this.setState({ arraySegment: arraySelectFront })
     }
-    if (flagActive.name == 'direccionesSelect') {
+    if (flagActive.name === 'direccionesSelect') {
       this.setState({ arrayAddress: arraySelectFront })
     }
-    if (flagActive.name == 'gerenciasSelect') {
+    if (flagActive.name === 'gerenciasSelect') {
       this.setState({ arrayGerence: arraySelectFront })
     }
-    if (flagActive.name == 'liderSelect') {
+    if (flagActive.name === 'liderSelect') {
       this.setState({ arrayLeader: arraySelectFront })
     }
-    if (flagActive.name == 'Norma') {
+    if (flagActive.name === 'Norma') {
       this.setState({ arrayNorma: arraySelectFront })
     }
   }
@@ -216,10 +216,10 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
   }
 
   public handleCheckboxChange = (event: any) => {
-    if (event.target.name == 'Link') {
+    if (event.target.name === 'Link') {
       this.setState({ isCheckedL: event.target.checked, isCheckedA: false });
 
-    } else if (event.target.name == 'Archivo') {
+    } else if (event.target.name === 'Archivo') {
       this.setState({ isCheckedA: event.target.checked, isCheckedL: false });
     }
   }
@@ -229,7 +229,7 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
     var auxiliar = new Array()
     var arrayGerenciaFilter = new Array()
     this.state.arrayAddress.forEach((val: any) => {
-      filterDirecciones = this.state.arraySelectGerencia.filter((d: any) => d.Direccion.Title == val)
+      filterDirecciones = this.state.arraySelectGerencia.filter((d: any) => d.Direccion.Title === val)
       if (auxiliar.length > 0) {
         filterDirecciones.forEach((value: any) => {
           auxiliar.push(value)
@@ -259,36 +259,36 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
     }else {
     this.setState({ codeDocumentType: '', codeDocumentMacroproceso: '', codeProcessFinal: '', codeConsecutive: '',isProcessDisabled: false})
     }
-    var codeTypeDocument = this.state.arraySelectTypeDocument.filter((cTD: any) => cTD.Title == evTd.value);
+    var codeTypeDocument = this.state.arraySelectTypeDocument.filter((cTD: any) => cTD.Title === evTd.value);
     this.setState({ codeDocumentType: '-' + codeTypeDocument[0].Codigo }, () => { this.completeCodeDocument() })
   
   }
 
   public searchFirtsPartCode(ev: any) {
     this.setState({ codeDocumentMacroproceso: '', codeProcessFinal: '', codeConsecutive: '' })
-    var codeSelected = this.state.arraySelectMacroprocess.filter((cS: any) => cS.TituloSinNumeral == ev.value);
+    var codeSelected = this.state.arraySelectMacroprocess.filter((cS: any) => cS.TituloSinNumeral === ev.value);
     this.setState({ codeDocumentMacroproceso: codeSelected[0].CodigoMacroproceso }, () => { this.completeCodeDocument() })
 
   }
 
   public searchCodeProcessComplete(even: any) {
-    if (this.state.TypeDocumentSelect == 'Politicas Macroproceso') {
+    if (this.state.TypeDocumentSelect === 'Politicas Macroproceso') {
       this.setState({ codeProcessFinal: '', codeConsecutive: '', flagPolitica: false, flagProcedimiento: false, flagManual: false})
     } else {
-      var codeSelectedProcess = this.state.arraySelectProcess.filter((cSP: any) => cSP.Title == even.value)
+      var codeSelectedProcess = this.state.arraySelectProcess.filter((cSP: any) => cSP.Title === even.value)
       this.setState({ idProcess: codeSelectedProcess[0].ID })
       var codeProcess = codeSelectedProcess[0].CodigoProceso;
-      if (this.state.TypeDocumentSelect == 'Politicas') {
+      if (this.state.TypeDocumentSelect === 'Politicas') {
         this.setState({ codeConsecutive: codeSelectedProcess[0].contPoliticas + 1 })
         this.setState({ flagPolitica: true,isProcessDisabled: false })
       }
 
-      if (this.state.TypeDocumentSelect == 'Procedimiento') {
+      if (this.state.TypeDocumentSelect === 'Procedimiento') {
         this.setState({ codeConsecutive: codeSelectedProcess[0].contProcedimiento + 1 });
         this.setState({ flagProcedimiento: true,isProcessDisabled: false })
       }
 
-      if (this.state.TypeDocumentSelect == 'Manual') {
+      if (this.state.TypeDocumentSelect === 'Manual') {
         this.setState({ codeConsecutive: codeSelectedProcess[0].contManual + 1 });
         this.setState({ flagManual: true,isProcessDisabled: false })
       }
@@ -304,36 +304,31 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
   public validateInput() {
     var validate = new Array();
 
-    if (this.state.titleDocument == '') validate.push({ campo: 'Titulo del documento', descripcion: "Digite el titulo del documento" });
-    if (this.state.resolutorDocument == 'Seleccione...' || this.state.resolutorDocument == null) validate.push({ campo: "Analista", descripcion: "Seleccione el analista" });
-    if (this.state.TypeDocumentSelect == 'Seleccione...' || this.state.TypeDocumentSelect == null) validate.push({ campo: "Tipo de Documento", descripcion: "Seleccione el tipo de documento" });
-    if (this.state.macroprocessSelect == 'Seleccione...' || this.state.macroprocessSelect == null) validate.push({ campo: "Macroproceso", descripcion: "Seleccione el macroproceso" });
-    
-    if(this.state.TypeDocumentSelect !== 'Politicas Macroproceso'){
-      if (this.state.processSelect == 'Seleccione...' || 
-          this.state.processSelect == null
-      ) { validate.push({ campo: "Proceso", descripcion: "Seleccione el proceso" }); }
-    }
-    if (this.state.typeSolutionSelect == 'Seleccione...' || this.state.typeSolutionSelect == null) validate.push({ campo: "Tipo de Solución", descripcion: "Seleccione el tipo de solución" });
-    if (this.state.Version == '') validate.push({ campo: "Versión", descripcion: "Digite la version del documento" });
-    if (this.state.processSOXSelect == 'Seleccione...' || this.state.processSOXSelect == null) validate.push({ campo: "Proceso SOX", descripcion: "Seleccione el proceso SOX" });
-    if (this.state.arraySegment.length == 0) validate.push({ campo: "Segmento", descripcion: "Seleccione los segmento(s)" });
-    if (this.state.Estado == 'Seleccione...' || this.state.Estado == null) validate.push({ campo: "Estado", descripcion: "Seleccione el estado del documento" });
-    if (this.state.datePublication == 'dd/mm/YYYY' || this.state.datePublication == null) validate.push({ campo: "Fecha de Publicación", descripcion: "Digite la fecha de publicación del documento" });
-    if (this.state.arrayNorma.length == 0) validate.push({ campo: "Norma!", descripcion: "Seleccione la(s) norma(s)" });
-    if (this.state.isCheckedL == true && this.state.Url == '') validate.push({ campo: "Url del documento", descripcion: "Digite la url del documento" });
-    if (this.state.isCheckedA == true && !this.state.archivo) validate.push({ campo: "Archivo", descripcion: "Agregue el archivo a guardar" });
-    if (this.state.CasoBPM == '') validate.push({ campo: "Número de caso BMP", descripcion: "Digite el número de caso BPM" });
-    if (this.state.arrayAddress.length == 0) validate.push({ campo: "Direcciones", descripcion: "Seleccione la(s) direccione(s)" });
-    if (this.state.arrayGerence.length == 0) validate.push({ campo: "Gerencias", descripcion: "Seleccione la(s) gerencia(s)" });
-    if (this.state.arrayLeader.length == 0) validate.push({ campo: "Lider", descripcion: "Seleccione la(s) gerencia(s)" });
+    if (this.state.titleDocument === '') validate.push({ campo: 'Titulo del documento', descripcion: "Digite el titulo del documento" });
+    if (this.state.resolutorDocument === 'Seleccione...' || this.state.resolutorDocument === null) validate.push({ campo: "Analista", descripcion: "Seleccione el analista" });
+    if (this.state.TypeDocumentSelect === 'Seleccione...' || this.state.TypeDocumentSelect === null) validate.push({ campo: "Tipo de Documento", descripcion: "Seleccione el tipo de documento" });
+    if (this.state.macroprocessSelect === 'Seleccione...' || this.state.macroprocessSelect === null) validate.push({ campo: "Macroproceso", descripcion: "Seleccione el macroproceso" });
+    if (this.state.processSelect === 'Seleccione...' || this.state.processSelect === null) { validate.push({ campo: "Proceso", descripcion: "Seleccione el proceso" }); }
+    if (this.state.typeSolutionSelect === 'Seleccione...' || this.state.typeSolutionSelect === null) validate.push({ campo: "Tipo de Solución", descripcion: "Seleccione el tipo de solución" });
+    if (this.state.Version === '') validate.push({ campo: "Versión", descripcion: "Digite la version del documento" });
+    if (this.state.processSOXSelect === 'Seleccione...' || this.state.processSOXSelect === null) validate.push({ campo: "Proceso SOX", descripcion: "Seleccione el proceso SOX" });
+    if (this.state.arraySegment.length === 0) validate.push({ campo: "Segmento", descripcion: "Seleccione los segmento(s)" });
+    if (this.state.Estado === 'Seleccione...' || this.state.Estado === null) validate.push({ campo: "Estado", descripcion: "Seleccione el estado del documento" });
+    if (this.state.datePublication === 'dd/mm/YYYY' || this.state.datePublication === null) validate.push({ campo: "Fecha de Publicación", descripcion: "Digite la fecha de publicación del documento" });
+    if (this.state.arrayNorma.length === 0) validate.push({ campo: "Norma!", descripcion: "Seleccione la(s) norma(s)" });
+    if (this.state.isCheckedL === true && this.state.Url === '') validate.push({ campo: "Url del documento", descripcion: "Digite la url del documento" });
+    if (this.state.isCheckedA === true && !this.state.archivo) validate.push({ campo: "Archivo", descripcion: "Agregue el archivo a guardar" });
+    if (this.state.CasoBPM === '') validate.push({ campo: "Número de caso BMP", descripcion: "Digite el número de caso BPM" });
+    if (this.state.arrayAddress.length === 0) validate.push({ campo: "Direcciones", descripcion: "Seleccione la(s) direccione(s)" });
+    if (this.state.arrayGerence.length === 0) validate.push({ campo: "Gerencias", descripcion: "Seleccione la(s) gerencia(s)" });
+    if (this.state.arrayLeader.length === 0) validate.push({ campo: "Lider", descripcion: "Seleccione la(s) gerencia(s)" });
 
     if (validate.length > 0) {
       Swal.fire({
         title: "Información!",
         html: "Los siguientes campos no contienen información:<br><br>" +
           validate.map(item => `<span>${item.campo}: ${item.descripcion}</span>`).join('<br>'),
-        icon: "error"
+        icon: "success"
       });
     } else {
       this.saveRegister();
@@ -464,7 +459,7 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
   }
 
   public updateURLRegister(IdRegistro: any) {
-    this.props.pnp.getItemsList(`GestionDocumental`, `ID,Title,tipoDocumento,codigoDocumento,IdDocumento,*`, `IdDocumento eq '${IdRegistro}'`, ``,`orderby=Modified desc`,1)
+    this.props.pnp.getItemsList(`GestionDocumental`, `ID,Title,tipoDocumento,codigoDocumento,IdDocumento,*`, `IdDocumento eq '${IdRegistro}'`, ``, `orderby=Modified desc`, 1)
       .then((res: any) => {
         var urlFile = res[0].ServerRedirectedEmbedUrl;
         this.props.pnp.updateItemList('RegistroSig', IdRegistro, { UrlDocumento: urlFile })
@@ -509,20 +504,20 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
   public saveCounterRegister() {
     var MedatacounterTypeDocument = {};
     this.state.idProcess //id de proceso
-    if (this.state.flagPolitica == true) {
+    if (this.state.flagPolitica === true) {
       MedatacounterTypeDocument = {
         contPoliticas: this.state.codeconsecutive
       }
 
     }
 
-    if (this.state.flagProcedimiento == true) {
+    if (this.state.flagProcedimiento === true) {
       MedatacounterTypeDocument = {
         contProcedimiento: this.state.codeConsecutive
       }
     }
 
-    if (this.state.flagManual == true) {
+    if (this.state.flagManual === true) {
       MedatacounterTypeDocument = {
         contManual: this.state.codeConsecutive
       }
@@ -554,13 +549,13 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
     const isProcessDisabled = item.TipoDocumento === 'Politicas Macroproceso';
 
     //Editar si es link o archivo
-    if (item.TipoDocumentoRegistro == "Link") {
+    if (item.TipoDocumentoRegistro === "Link") {
       this.setState({
         isCheckedL: true,
         isCheckedA: false,
       })
     }
-    if (item.TipoDocumentoRegistro == "Archivo") {
+    if (item.TipoDocumentoRegistro === "Archivo") {
       this.setState({
         isCheckedL: true,
         isCheckedA: false
@@ -689,7 +684,7 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
   public render(): React.ReactElement<IAdminDocumentosProps> {
     return (
       <section>
-        {this.state.viewTable == true ?
+        {this.state.viewTable === true ?
 
           <div>
             {this.state.Authorized ? (
@@ -884,7 +879,7 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
                         }
                       </select>
                     </div>
-                    {this.state.Estado == 'Obsoleto' ?
+                    {this.state.Estado === 'Obsoleto' ?
                       <div className="form-group">
                         <label className="col-sm-2">Observaciones<span className="inputRequired">*</span></label>
                         <textarea cols={30} rows={5} className="form-control NewRequired" name="Observaciones" value={this.state.Observaciones} onChange={(e) => { this.inputChange(e.target) }} placeholder="Ingrese la observación" ></textarea>
@@ -924,7 +919,7 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
                       </div>
                     </div>
                     <br />
-                    {this.state.isCheckedL == true ?
+                    {this.state.isCheckedL === true ?
                       <div className="form-group">
                         <label>Url del documento<span className="inputRequired">*</span></label>
                         <br />
@@ -933,7 +928,7 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
                       : null
                     }
 
-                    {this.state.isCheckedA == true ?
+                    {this.state.isCheckedA === true ?
                       <div className="form-group">
                         <label>Documento<span className="inputRequired">*</span></label>
                         <input type="file" className="form-control NewRequired" name='archivo' onChange={(e) => { this.inputChangeFile(e) }} multiple accept="application/pdf,application/vnd.ms-excel" />
