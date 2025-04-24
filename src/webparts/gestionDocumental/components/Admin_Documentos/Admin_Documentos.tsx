@@ -464,7 +464,7 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
   }
 
   public updateURLRegister(IdRegistro: any) {
-    this.props.pnp.getItemsList(`GestionDocumental`, `ID,Title,tipoDocumento,codigoDocumento,IdDocumento,*`, `IdDocumento eq '${IdRegistro}'`, ``)
+    this.props.pnp.getItemsList(`GestionDocumental`, `ID,Title,tipoDocumento,codigoDocumento,IdDocumento,*`, `IdDocumento eq '${IdRegistro}'`, ``,`orderby=Modified desc`,1)
       .then((res: any) => {
         var urlFile = res[0].ServerRedirectedEmbedUrl;
         this.props.pnp.updateItemList('RegistroSig', IdRegistro, { UrlDocumento: urlFile })
