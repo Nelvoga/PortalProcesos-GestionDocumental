@@ -86,7 +86,7 @@ export default class ComunicadosDocumentos extends React.Component<IComunicadosP
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, Enviar!"
+            confirmButtonText: "Enviar!"
         }).then((result) => {
             if (result.isConfirmed) {
                 this.props.Comunica.insertItemList('Comunicados', metadata)

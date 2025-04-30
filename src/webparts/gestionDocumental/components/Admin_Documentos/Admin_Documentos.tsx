@@ -51,7 +51,8 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
       emailInto: this.props.EmailIntoTas,
       nameInto: this.props.idNameDisplay,
       Authorized: false,
-      isProcessDisabled: false
+      isProcessDisabled: false,
+      AuthorizedResponsable: false
     }
   }
 
@@ -74,6 +75,12 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
 
       if (FilterResponsable || filterResolutor) {
         this.setState({ Authorized: true });
+      } else {
+        console.warn('No se encontró un Responsable válido.');
+      }
+
+      if (FilterResponsable) {
+        this.setState({ AuthorizedResponsable: true });
       } else {
         console.warn('No se encontró un Responsable válido.');
       }
@@ -702,7 +709,10 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
                   <div className='row'>
                     <div className='col'><button type="button" className="btn btn-outline-danger" onClick={() => this.setState({ handleShow: true, ModalTitle: "Nuevo Registro", save: 'Guardar' }, () => this.formClear())}>Nuevo Registro</button></div>
                     <div className='col'><button type="button" className="btn btn-outline-danger" onClick={() => this.viewComunicados()} >Comunicados</button></div>
-                    {/*<div className='col'><button type="button" className="btn btn-outline-danger" onClick={() =>this.viewActualizacion()}>Actualizacion Masiva</button></div>*/}
+                    {this.state.AuthorizedResponsable ?
+                    <div className='col'><button type="button" className="btn btn-outline-danger" onClick={() =>this.viewActualizacion()}>Actualizacion Masiva</button></div>
+                      :null
+                    }
                   </div>
                   <div className="d-flex flex-column justify-content-start table-responsive">
                     <table className="table table-striped table-sm table-hover" id="tableRegisters">

@@ -16,8 +16,6 @@ interface IGestionDocumentalWebPartProps{
   context:any
 }
 
-
-
 export default class GestionDocumental extends React.Component<IGestionDocumentalWebPartProps,any> {
   public pnp :PNP;
   constructor(props:any){
