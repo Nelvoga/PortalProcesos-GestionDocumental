@@ -19,9 +19,12 @@ export default class ComunicadosDocumentos extends React.Component<IComunicadosP
         super(props);
 
         this.state = {
-            ArrayRegistersSig: [],
+            ArrayRegistersSigTitle: [],
+            arrayRegisterAll: [],
             itemSearch: '',
-            arrayTableCommunication: []
+            arrayTableCommunication: [],
+            TipoProcesoMacro: '',
+            resPeoplePick: [],
         };
 
     }
@@ -41,7 +44,7 @@ export default class ComunicadosDocumentos extends React.Component<IComunicadosP
                         arraySelect.push({ label: Register.Title })
                     ))
                 }
-                this.setState({ ArrayRegistersSig: arraySelect })
+                this.setState({ ArrayRegistersSigTitle: arraySelect, arrayRegisterAll: resRegisterSig });
 
             })
     }
@@ -112,31 +115,47 @@ export default class ComunicadosDocumentos extends React.Component<IComunicadosP
     }
 
     public searchDocument() {
-        var newArrayResponse = new Array()
-    
-        this.props.Comunica.getItemsList(
-            `RegistroSig`, 
-            `ID,Title,TipoDocumento,Version,Lider,UrlDocumento,*`, 
-            `Title eq '${this.state.itemSearch}'`, 
-            ``
-        ).then((resPublic: any) => {
-            if (resPublic.length > 0) {
-                newArrayResponse.push(resPublic[0]);
-            }
-            this.setState((prevState:any) => ({
-                arrayTableCommunication: [...prevState.arrayTableCommunication, ...newArrayResponse]
-            }));
-        });
+        const { arrayRegisterAll, itemSearch } = this.state;
+        const newArrayResponse = new Array();
+        let TipoProceso='';
+
+        // Buscar el registro por título
+        const foundItem = arrayRegisterAll.find((item: any) => item.Title === itemSearch);
+
+        if (foundItem) {
+            // Buscar imagen del macroproceso relacionado
+            this.props.Comunica.getItemsList(
+                'Macroproceso',
+                'ID,TituloSinNumeral,ImagenMapaProceso,TipoProceso',
+                `TituloSinNumeral eq '${foundItem.Macroproceso}'`, // Asumiendo que "Macroproceso" es una propiedad del registro original
+                ''
+            ).then((resMacro: any) => {
+                if (resMacro.length > 0) {
+                    foundItem.imagenMacroproceso = resMacro[0].ImagenMapaProceso;
+                    TipoProceso= resMacro[0].TipoProceso;
+                } else {
+                    foundItem.imagenMacroproceso = null;
+                }
+
+                newArrayResponse.push(foundItem);
+
+                this.setState((prevState: any) => ({
+                    arrayTableCommunication: [...prevState.arrayTableCommunication, ...newArrayResponse],
+                    TipoProcesoMacro: TipoProceso
+                }));
+            });
+        }
     }
-    
-    
+
+
+
 
     public deleteRowTable(rowItem: any) {
         this.setState((prevState: any) => ({
             arrayTableCommunication: prevState.arrayTableCommunication.filter((item: any) => item.ID !== rowItem)
         }));
     }
-    
+
 
     private _getPeoplePickerItems(items: any[]) {
         if (items.length > 0) {
@@ -191,7 +210,7 @@ export default class ComunicadosDocumentos extends React.Component<IComunicadosP
                                     <Select
                                         defaultValue={[]}
                                         name="segmentSelect"
-                                        options={this.state.ArrayRegistersSig}
+                                        options={this.state.ArrayRegistersSigTitle}
                                         className="basic-single-select"
                                         classNamePrefix="select"
                                         onChange={(e) => this.inputChangeSelect(e)}
@@ -208,14 +227,14 @@ export default class ComunicadosDocumentos extends React.Component<IComunicadosP
                                 {this.state.arrayTableCommunication.length > 0 ?
                                     <div className="tableComunicado" id='DivContent' >
                                         <table id="tableComunicado">
-                                            <thead style={{ backgroundColor: "#D0262f", color: "aliceblue" }}>
+                                            <thead style={ this.state.TipoProcesoMacro === 'Valor' ? { backgroundColor: '#006E83' , color:'aliceblue' } : { backgroundColor: '#FF810F', color:'aliceblue' }}>
                                                 <tr>
+                                                    <th scope="col" >Macroproceso</th>
                                                     <th scope="col" >Nombre del Documento</th>
                                                     <th scope="col" >Objetivo</th>
-                                                    <th scope="col" >Tipo de Documento</th>
                                                     <th scope="col" >Versión</th>
                                                     <th scope="col" >Cambio realizado </th>
-                                                    <th scope="col" >Lider</th>
+                                                    <th scope="col" >Dueño</th>
                                                     <th scope="col" >Link</th>
                                                     <th scope="col" ></th>
                                                 </tr>
@@ -225,10 +244,11 @@ export default class ComunicadosDocumentos extends React.Component<IComunicadosP
                                                     this.state.arrayTableCommunication.map((items: any, index: any) => (
 
                                                         <tr id={items.ID}>
-
-                                                            <td>{items.Title}</td>
+                                                            <td style={{ textAlign: "center" }}>
+                                                                <img src={items.imagenMacroproceso?.Url} alt="Imagen Macroproceso" width="80" />
+                                                            </td>
+                                                            <td style={ this.state.TipoProcesoMacro === 'Valor' ? { backgroundColor: '#006E83' , color:'aliceblue' } : { backgroundColor: '#FF810F', color:'aliceblue' }}>{items.Title}</td>
                                                             <td>{<textarea cols={30} rows={5} className="form-control NewRequired" name={`Objetivo${index + 1}`} value={this.state[`Objetivo${index + 1}`]} onChange={(e) => { this.textareaChange(e.target) }} placeholder="Ingrese el objetivo" ></textarea>}</td>
-                                                            <td>{items.TipoDocumento}</td>
                                                             <td>{items.Version}</td>
                                                             <td>{<textarea cols={30} rows={5} className="form-control NewRequired" name={`Cambio${index + 1}`} value={this.state[`Cambio${index + 1}`]} onChange={(e) => { this.textareaChange(e.target) }} placeholder="Ingrese el cambio realizado" ></textarea>}</td>
                                                             <td>{items.Lider}</td>
