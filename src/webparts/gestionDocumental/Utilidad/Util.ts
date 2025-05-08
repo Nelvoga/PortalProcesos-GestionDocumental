@@ -268,7 +268,22 @@ export class PNP {
   }
   
   
-
+  public async fetchImageAsBase64(url: string): Promise<string> {
+    const response = await fetch(url, {
+      credentials: 'include'
+    });
+  
+    const blob = await response.blob();
+  
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+  
+  
 
 
 

@@ -13,6 +13,8 @@ interface IComunicadosProps {
     viewComunicados: any
 }
 
+const siteBase = `${window.location.origin}/sites/PortaldeProcesosyMejoracontinua/DesarrolloProcesos`;
+
 export default class ComunicadosDocumentos extends React.Component<IComunicadosProps, any> {
 
     constructor(props: any) {
@@ -82,7 +84,7 @@ export default class ComunicadosDocumentos extends React.Component<IComunicadosP
             Area: areaDestinatarios,
             TablaRegistros: tagTable
         };
-        console.log(metadata);
+
         Swal.fire({
             title: "Esta seguro de enviar este comunicado?",
             icon: "question",
@@ -114,41 +116,52 @@ export default class ComunicadosDocumentos extends React.Component<IComunicadosP
         this.setState({ tagTable: eventTag }, () => { console.log(this.state.tagTable); })
     }
 
-    public searchDocument() {
+    public async searchDocument() {
         const { arrayRegisterAll, itemSearch } = this.state;
         const newArrayResponse = new Array();
-        let TipoProceso='';
 
-        // Buscar el registro por título
         const foundItem = arrayRegisterAll.find((item: any) => item.Title === itemSearch);
 
         if (foundItem) {
-            // Buscar imagen del macroproceso relacionado
-            this.props.Comunica.getItemsList(
-                'Macroproceso',
-                'ID,TituloSinNumeral,ImagenMapaProceso,TipoProceso',
-                `TituloSinNumeral eq '${foundItem.Macroproceso}'`, // Asumiendo que "Macroproceso" es una propiedad del registro original
-                ''
-            ).then((resMacro: any) => {
+            try {
+                const resMacro = await this.props.Comunica.getItemsList(
+                    'Macroproceso',
+                    'ID,TituloSinNumeral,ImagenMapaProceso,TipoProceso',
+                    `TituloSinNumeral eq '${foundItem.Macroproceso}'`,
+                    ''
+                );
+                foundItem.imagenMacroproceso = '';
+                foundItem.imagenMacroprocesoBase64 = ''; // Campo para almacenar Base64
+
                 if (resMacro.length > 0) {
-                    foundItem.imagenMacroproceso = resMacro[0].ImagenMapaProceso;
-                    TipoProceso= resMacro[0].TipoProceso;
+                    const imageUrl = resMacro[0].ImagenMapaProceso?.Url; // Obtén la URL directamente
+                    foundItem.TipoProceso = resMacro[0].TipoProceso;
+
+                    if (imageUrl) {
+                        foundItem.imagenMacroproceso = imageUrl; // Guarda la URL
+                        //const base64Image = await this.props.Comunica.fetchImageAsBase64(imageUrl); // Convierte a Base64
+                        //foundItem.imagenMacroprocesoBase64 = base64Image; // Guarda el Base64
+                    } else {
+                        foundItem.imagenMacroproceso = null;
+                        //foundItem.imagenMacroprocesoBase64 = null;
+                    }
                 } else {
                     foundItem.imagenMacroproceso = null;
+                    //foundItem.imagenMacroprocesoBase64 = null;
                 }
 
                 newArrayResponse.push(foundItem);
 
                 this.setState((prevState: any) => ({
                     arrayTableCommunication: [...prevState.arrayTableCommunication, ...newArrayResponse],
-                    TipoProcesoMacro: TipoProceso
+                    TipoProcesoMacro: foundItem.TipoProceso
                 }));
-            });
+
+            } catch (error) {
+                console.error("Error obteniendo macroproceso o convirtiendo imagen:", error);
+            }
         }
     }
-
-
-
 
     public deleteRowTable(rowItem: any) {
         this.setState((prevState: any) => ({
@@ -227,7 +240,7 @@ export default class ComunicadosDocumentos extends React.Component<IComunicadosP
                                 {this.state.arrayTableCommunication.length > 0 ?
                                     <div className="tableComunicado" id='DivContent' >
                                         <table id="tableComunicado">
-                                            <thead style={ this.state.TipoProcesoMacro === 'Valor' ? { backgroundColor: '#006E83' , color:'aliceblue' } : { backgroundColor: '#FF810F', color:'aliceblue' }}>
+                                            <thead style={this.state.TipoProcesoMacro === 'Valor' ? { backgroundColor: '#006E83', color: 'aliceblue' } : { backgroundColor: '#FF810F', color: 'aliceblue' }}>
                                                 <tr>
                                                     <th scope="col" >Macroproceso</th>
                                                     <th scope="col" >Nombre del Documento</th>
@@ -245,14 +258,14 @@ export default class ComunicadosDocumentos extends React.Component<IComunicadosP
 
                                                         <tr id={items.ID}>
                                                             <td style={{ textAlign: "center" }}>
-                                                                <img src={items.imagenMacroproceso?.Url} alt="Imagen Macroproceso" width="80" />
+                                                                <img src={items.imagenMacroproceso} alt="Imagen Macroproceso" width="80" />
                                                             </td>
-                                                            <td style={ this.state.TipoProcesoMacro === 'Valor' ? { backgroundColor: '#006E83' , color:'aliceblue' } : { backgroundColor: '#FF810F', color:'aliceblue' }}>{items.Title}</td>
+                                                            <td style={this.state.TipoProcesoMacro === 'Valor' ? { backgroundColor: '#006E83', color: 'aliceblue' } : { backgroundColor: '#FF810F', color: 'aliceblue' }}>{items.Title}</td>
                                                             <td>{<textarea cols={30} rows={5} className="form-control NewRequired" name={`Objetivo${index + 1}`} value={this.state[`Objetivo${index + 1}`]} onChange={(e) => { this.textareaChange(e.target) }} placeholder="Ingrese el objetivo" ></textarea>}</td>
-                                                            <td>{items.Version}</td>
+                                                            <td style={{textAlign: "center"}}>{items.Version}</td>
                                                             <td>{<textarea cols={30} rows={5} className="form-control NewRequired" name={`Cambio${index + 1}`} value={this.state[`Cambio${index + 1}`]} onChange={(e) => { this.textareaChange(e.target) }} placeholder="Ingrese el cambio realizado" ></textarea>}</td>
                                                             <td>{items.Lider}</td>
-                                                            <td><div>{<a href={items.UrlDocumento}><img src="https://claromovilco.sharepoint.com/sites/PortaldeProcesosyMejoracontinua/DesarrolloProcesos/Imagenes/claro-ico.png" width="17px" /></a>}</div></td>
+                                                            <td><div>{<a href={decodeURIComponent(items.UrlDocumento)}><img src={`${siteBase}/Imagenes/claro-ico.png`} width="17px" /></a>}</div></td>
                                                             <td style={{ textAlign: "center" }}><div onClick={() => { this.deleteRowTable(items.ID) }}>
                                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-trash3-fill" viewBox="0 0 16 16">
                                                                     <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5" />
