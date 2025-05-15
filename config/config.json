@@ -9,11 +9,20 @@
           "manifest": "./src/webparts/gestionDocumental/GestionDocumentalWebPart.manifest.json"
         }
       ]
+    },
+    "busqueda-documentos-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/busquedaDocumentos/BusquedaDocumentosWebPart.js",
+          "manifest": "./src/webparts/busquedaDocumentos/BusquedaDocumentosWebPart.manifest.json"
+        }
+      ]
     }
   },
-  "externals": {},
+  "externals": {},  
   "localizedResources": {
     "GestionDocumentalWebPartStrings": "lib/webparts/gestionDocumental/loc/{locale}.js",
-    "ControlStrings": "node_modules/@pnp/spfx-controls-react/lib/loc/{locale}.js"
+    "ControlStrings": "node_modules/@pnp/spfx-controls-react/lib/loc/{locale}.js",
+    "BusquedaDocumentosWebPartStrings": "lib/webparts/busquedaDocumentos/loc/{locale}.js"
   }
 }

@@ -870,7 +870,7 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
                         options={this.state.arraySelectSegmento}
                         className="basic-multi-select"
                         classNamePrefix="select"
-                        onChange={(e, Active) => { this.inputChangeSelect(e, Active) }}
+                        onChange={(e: any, Active: any) => { this.inputChangeSelect(e, Active) }}
                         placeholder='Seleccione...'
                         required
                       />
@@ -909,7 +909,7 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
                         options={this.state.arraySelectNorma}
                         className="basic-multi-select"
                         classNamePrefix="select"
-                        onChange={(e, Active) => { this.inputChangeSelect(e, Active) }}
+                        onChange={(e:any, Active:any) => { this.inputChangeSelect(e, Active) }}
                         placeholder='Seleccione...'
                         required
                       />
@@ -961,7 +961,7 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
                         className="basic-multi-select"
                         classNamePrefix="select"
                         placeholder='Seleccione...'
-                        onChange={(e, Active) => { this.inputChangeSelect(e, Active) }}
+                        onChange={(e: any, Active: any ) => { this.inputChangeSelect(e, Active) }}
                         onBlur={() => { this.filterGerenceSelect() }}
                       />
                     </div>
@@ -976,7 +976,7 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
                         className="basic-multi-select"
                         classNamePrefix="select"
                         placeholder='Seleccione...'
-                        onChange={(e, Active) => { this.inputChangeSelect(e, Active) }}
+                        onChange={(e:any, Active:any) => { this.inputChangeSelect(e, Active) }}
                         onBlur={() => { this.filterLiderSelect() }}
                       />
 
@@ -993,7 +993,7 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
                         className="basic-multi-select"
                         classNamePrefix="select"
                         placeholder='Seleccione...'
-                        onChange={(e, Active) => { this.inputChangeSelect(e, Active) }}
+                        onChange={(e:any, Active:any) => { this.inputChangeSelect(e, Active) }}
 
                       />
 

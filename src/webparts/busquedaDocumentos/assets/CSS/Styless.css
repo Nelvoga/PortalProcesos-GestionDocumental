@@ -1,0 +1,53 @@
+.tituloFront {
+    background-color: #d0262f;
+    margin: 0px 0px 1px;
+    width: 100%;
+    height: 35px;
+    box-shadow: 6px 11px 18px -10px;
+    font-size: 20px;
+    border-radius: 50px;
+  }
+  
+  .tituloF {
+    font-weight: bold;
+    color: white;
+    text-shadow: 1px 1px black;
+    text-align: center;
+    margin: 15px;
+    margin-top: revert-layer;
+  }
+
+.custom-row {
+    background-color: #c9dbbf; 
+    width: 100%; 
+    margin: 0 auto; 
+    height: auto; 
+}
+
+.custom-row td {
+    padding: 10px;
+    text-align: left;
+    vertical-align: top;
+}
+
+#tableSearch {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#tableSearch td {
+    border: 1px solid #ccc; /* Borde entre celdas */
+}
+
+.custom-row-result {
+    background-color: #e9e9e9; /* Gis claro */ 
+    border: 1px solid #ccc; /* Borde gris */
+}
+
+.responsive-image {
+    max-width: 100%; /* La imagen no excederá el ancho del contenedor */
+    height: auto;    /* Mantiene las proporciones de la imagen */
+    display: block;  /* Asegura que no haya espacio adicional alrededor de la imagen */
+    margin: 0 auto;  /* Centra la imagen horizontalmente */
+}
+

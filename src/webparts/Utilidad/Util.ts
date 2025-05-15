@@ -74,6 +74,47 @@ export class PNP {
     });
   }
 
+  public gettingItemsList(
+    listName: string,
+    fieldsItem?: string,
+    filtersItem?: string,
+    expandItem?: string,
+    sortid?: any,
+    topItem?: number,
+    webUrl?: string, 
+  ): Promise<any> {
+  
+    let top = topItem ? topItem : 5000;
+    let sort = sortid ? sortid : { property: "ID", asc: true }
+    let fields = fieldsItem ? fieldsItem : '';
+    let filters = filtersItem ? filtersItem : '';
+    let expand = expandItem ? expandItem : '';
+  
+    // Si se pasa una URL de sitio, se usa esa, si no, se usa el sitio actual (`this.web`)
+    const web = webUrl ? new Web(webUrl) : this.web;
+  
+    return new Promise((resolve, reject) => {
+      let list = web.lists.getByTitle(listName);
+      if (list) {
+        list.items
+          .filter(filters)
+          .select(fields)
+          .expand(expand)
+          .orderBy(sort.property, sort.asc)
+          .top(top)
+          .get()
+          .then((items: any[]) => {
+            resolve(items);
+          })
+          .catch(err => {
+            reject(err); // mejor devolver el error para depuración
+          });
+      } else {
+        reject("Lista no encontrada");
+      }
+    });
+  }
+
   public insertItemList(
     listName: string,
     properties: any,

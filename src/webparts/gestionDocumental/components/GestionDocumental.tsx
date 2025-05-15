@@ -1,7 +1,7 @@
 import * as React from 'react';
 import '../assets/CSS/Styless.css';
 import { IGestionDocumentalProps } from './IGestionDocumentalProps';
-import {PNP} from '../Utilidad/Util'
+import {PNP} from '../../Utilidad/Util'
 
 
 

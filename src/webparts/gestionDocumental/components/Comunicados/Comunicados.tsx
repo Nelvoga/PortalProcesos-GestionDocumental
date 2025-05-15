@@ -1,12 +1,12 @@
 import * as React from 'react';
 
-import { IPeoplePickerContext, PeoplePicker, PrincipalType } from "@pnp/spfx-controls-react/lib/PeoplePicker"
+import { PeoplePicker, PrincipalType } from "@pnp/spfx-controls-react/lib/PeoplePicker"
 import Swal from 'sweetalert2';
 import Select from 'react-select';
 const jQuery = require("jquery");
 
 
-//var arrayResponse = new Array();
+
 interface IComunicadosProps {
     Comunica: any;
     context: any
@@ -139,15 +139,11 @@ export default class ComunicadosDocumentos extends React.Component<IComunicadosP
 
                     if (imageUrl) {
                         foundItem.imagenMacroproceso = imageUrl; // Guarda la URL
-                        //const base64Image = await this.props.Comunica.fetchImageAsBase64(imageUrl); // Convierte a Base64
-                        //foundItem.imagenMacroprocesoBase64 = base64Image; // Guarda el Base64
                     } else {
                         foundItem.imagenMacroproceso = null;
-                        //foundItem.imagenMacroprocesoBase64 = null;
                     }
                 } else {
                     foundItem.imagenMacroproceso = null;
-                    //foundItem.imagenMacroprocesoBase64 = null;
                 }
 
                 newArrayResponse.push(foundItem);
@@ -177,11 +173,7 @@ export default class ComunicadosDocumentos extends React.Component<IComunicadosP
     }
 
     public render(): React.ReactElement<IComunicadosProps> {
-        const peoplePickerContext: IPeoplePickerContext = {
-            absoluteUrl: this.props.context.pageContext.web.absoluteUrl,
-            msGraphClientFactory: this.props.context.msGraphClientFactory,
-            spHttpClient: this.props.context.spHttpClient
-        };
+        
         return (
             <section>
                 <div>
@@ -199,7 +191,7 @@ export default class ComunicadosDocumentos extends React.Component<IComunicadosP
                                     <div>
                                         <div>
                                             <PeoplePicker
-                                                context={peoplePickerContext}
+                                                context={this.props.context}
                                                 personSelectionLimit={500}
                                                 groupName={""} // Leave this blank in case you want to filter from all users
                                                 showtooltip={true}
@@ -226,7 +218,7 @@ export default class ComunicadosDocumentos extends React.Component<IComunicadosP
                                         options={this.state.ArrayRegistersSigTitle}
                                         className="basic-single-select"
                                         classNamePrefix="select"
-                                        onChange={(e) => this.inputChangeSelect(e)}
+                                        onChange={(e:any) => this.inputChangeSelect(e)}
                                         placeholder="Digite el nombre del documento"
 
                                     />
@@ -270,7 +262,7 @@ export default class ComunicadosDocumentos extends React.Component<IComunicadosP
                                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-trash3-fill" viewBox="0 0 16 16">
                                                                     <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5" />
                                                                 </svg>
-                                                            </div></td>
+                                                            </div></td> 
                                                         </tr>
                                                     ))
                                                     : null

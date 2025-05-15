@@ -1,11 +1,11 @@
 {
   "@microsoft/generator-sharepoint": {
     "plusBeta": false,
-    "isCreatingSolution": true,
-    "nodeVersion": "16.14.0",
+    "isCreatingSolution": false,
+    "nodeVersion": "18.20.7",
     "sdksVersions": {
       "@microsoft/microsoft-graph-client": "3.0.2",
-      "@microsoft/teams-js": "2.9.1"
+      "@microsoft/teams-js": "2.24.0"
     },
     "version": "1.17.1",
     "libraryName": "portalprocesos-gestiondocumental",
