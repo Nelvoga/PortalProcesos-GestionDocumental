@@ -2,6 +2,7 @@ import * as React from 'react';
 const moment = require('moment');
 const jQuery = require("jquery");
 import Swal, { SweetAlertOptions } from 'sweetalert2';
+import { WebPartContext } from '@microsoft/sp-webpart-base';
 import { Modal } from 'react-bootstrap';
 import Select from 'react-select';
 import ComunicadosDocumentos from '../Comunicados/Comunicados'
@@ -10,9 +11,9 @@ import ActualizacionMasiva from '../Actualizacion_Masiva/ActualizacionMasiva';
 
 export interface IAdminDocumentosProps {
   pnp: any;
-  context: any;
+  context: WebPartContext;
   EmailIntoTas: any;
-  idNameDisplay: any;
+  idNameDisplay: any; 
 }
 
 

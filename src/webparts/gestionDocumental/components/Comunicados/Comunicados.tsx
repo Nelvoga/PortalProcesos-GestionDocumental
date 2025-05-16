@@ -1,6 +1,6 @@
 import * as React from 'react';
-
-import { PeoplePicker, PrincipalType } from "@pnp/spfx-controls-react/lib/PeoplePicker"
+import { WebPartContext } from '@microsoft/sp-webpart-base';
+import { IPeoplePickerContext, PeoplePicker, PrincipalType } from "@pnp/spfx-controls-react/lib/PeoplePicker"
 import Swal from 'sweetalert2';
 import Select from 'react-select';
 const jQuery = require("jquery");
@@ -9,15 +9,28 @@ const jQuery = require("jquery");
 
 interface IComunicadosProps {
     Comunica: any;
-    context: any
+    context: WebPartContext;
     viewComunicados: any
 }
 
 const siteBase = `${window.location.origin}/sites/PortaldeProcesosyMejoracontinua/DesarrolloProcesos`;
 
-export default class ComunicadosDocumentos extends React.Component<IComunicadosProps, any> {
+interface IComunicadosState {
+  ArrayRegistersSigTitle: { label: string }[];
+  arrayRegisterAll: any[];
+  itemSearch: string;
+  arrayTableCommunication: any[];
+  TipoProcesoMacro: string;
+  resPeoplePick: any[];
+  defaultSelectedUsers: any[];
+  clearPickerKey: number;
+  [key: string]: any;
+  selectedRegister:{ value: string; label: string };
+}
 
-    constructor(props: any) {
+export default class ComunicadosDocumentos extends React.Component<IComunicadosProps, IComunicadosState> {
+
+    constructor(props: IComunicadosProps) {
         super(props);
 
         this.state = {
@@ -27,6 +40,9 @@ export default class ComunicadosDocumentos extends React.Component<IComunicadosP
             arrayTableCommunication: [],
             TipoProcesoMacro: '',
             resPeoplePick: [],
+            defaultSelectedUsers: [],
+            clearPickerKey: 0,
+            selectedRegister: { value: 'Digite o seleccione un documento', label: 'Digite o seleccione un documento' }
         };
 
     }
@@ -96,11 +112,13 @@ export default class ComunicadosDocumentos extends React.Component<IComunicadosP
             if (result.isConfirmed) {
                 this.props.Comunica.insertItemList('Comunicados', metadata)
                     .then((res: any) => {
-                        this.setState({
-                            PeoplePickClear: []
-                        }, () => {
+                        this.setState((prev:any) => ({
+                            selectedRegister: { value: 'Digite o seleccione un documento', label: 'Digite o seleccione un documento' },
+                            resPeoplePick: [] as any[],
+                             clearPickerKey: prev.clearPickerKey + 1
+                        }), () => {
                             jQuery('#tableComunicado tbody').empty();
-                            Swal.fire("Información!", "Registro Enviado", "success");
+                            Swal.fire("Información!", "Registro Enviado", "success"); 
                         });
                     });
             }
@@ -108,7 +126,7 @@ export default class ComunicadosDocumentos extends React.Component<IComunicadosP
     }
 
     public inputChangeSelect = (selectedOption: any) => {
-        this.setState({ itemSearch: selectedOption.label });
+        this.setState({ itemSearch: selectedOption.label, selectedRegister: selectedOption }); 
     };
 
 
@@ -173,7 +191,11 @@ export default class ComunicadosDocumentos extends React.Component<IComunicadosP
     }
 
     public render(): React.ReactElement<IComunicadosProps> {
-        
+        const peoplePickerContext: IPeoplePickerContext = {
+                    absoluteUrl: this.props.context.pageContext.web.absoluteUrl,
+                    spHttpClient: this.props.context.spHttpClient,
+                    msGraphClientFactory: this.props.context.msGraphClientFactory
+};
         return (
             <section>
                 <div>
@@ -191,14 +213,15 @@ export default class ComunicadosDocumentos extends React.Component<IComunicadosP
                                     <div>
                                         <div>
                                             <PeoplePicker
-                                                context={this.props.context}
+                                                key={this.state.clearPickerKey}
+                                                context={peoplePickerContext}
                                                 personSelectionLimit={500}
                                                 groupName={""} // Leave this blank in case you want to filter from all users
                                                 showtooltip={true}
                                                 disabled={false}
                                                 ensureUser={true}
                                                 onChange={(el: any) => { this._getPeoplePickerItems(el) }}
-                                                defaultSelectedUsers={this.state.PeoplePickClear}
+                                                defaultSelectedUsers={this.state.resPeoplePick}
                                                 required={true}
                                                 searchTextLimit={3}
                                                 showHiddenInUI={false}
@@ -213,6 +236,7 @@ export default class ComunicadosDocumentos extends React.Component<IComunicadosP
                                     <label>Buscar Documentos</label>
                                     <br />
                                     <Select
+                                         value={this.state.selectedRegister}
                                         defaultValue={[]}
                                         name="segmentSelect"
                                         options={this.state.ArrayRegistersSigTitle}
