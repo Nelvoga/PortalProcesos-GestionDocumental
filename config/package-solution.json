@@ -3,9 +3,9 @@
   "solution": {
     "name": "portalprocesos-gestiondocumental-client-side-solution",
     "id": "46831144-6bcc-429c-8ffe-885c69c4798a",
-    "version": "1.0.0.0",
+    "version": "1.0.1.7",
     "includeClientSideAssets": true,
-    "skipFeatureDeployment": true,
+    "skipFeatureDeployment": false,
     "isDomainIsolated": false,
     "developer": {
       "name": "",
@@ -30,7 +30,7 @@
         "title": "portalprocesos-gestiondocumental Feature",
         "description": "The feature that activates elements of the portalprocesos-gestiondocumental solution.",
         "id": "7870a4ec-6b0d-4a27-a81d-c34455b6cba4",
-        "version": "1.0.0.0"
+        "version": "1.0.1.7"
       }
     ]
   },
