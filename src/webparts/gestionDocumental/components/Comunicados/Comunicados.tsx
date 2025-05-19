@@ -13,7 +13,7 @@ interface IComunicadosProps {
     viewComunicados: any
 }
 
-const siteBase = `${window.location.origin}/sites/PortaldeProcesosyMejoracontinua/DesarrolloProcesos`;
+const siteBase = `${window.location.origin}/sites/PortaldeProcesosyMejoracontinua`;
 
 interface IComunicadosState {
   ArrayRegistersSigTitle: { label: string }[];
@@ -142,11 +142,9 @@ export default class ComunicadosDocumentos extends React.Component<IComunicadosP
 
         if (foundItem) {
             try {
-                const resMacro = await this.props.Comunica.getItemsList(
-                    'Macroproceso',
-                    'ID,TituloSinNumeral,ImagenMapaProceso,TipoProceso',
-                    `TituloSinNumeral eq '${foundItem.Macroproceso}'`,
-                    ''
+                //lista, campos, filtro, expand, orden, cantidad registros, url
+                const resMacro = await this.props.Comunica.gettingItemsList(
+                    'Macroproceso', 'ID,TituloSinNumeral,ImagenMapaProceso,TipoProceso', `TituloSinNumeral eq '${foundItem.Macroproceso}'`, '', '', '', 'https://claromovilco.sharepoint.com/sites/PortaldeProcesosyMejoracontinua'
                 );
                 foundItem.imagenMacroproceso = '';
                 foundItem.imagenMacroprocesoBase64 = ''; // Campo para almacenar Base64

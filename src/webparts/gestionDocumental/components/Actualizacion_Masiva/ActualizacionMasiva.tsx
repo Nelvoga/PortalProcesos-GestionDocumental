@@ -33,18 +33,19 @@ export default class Actualizacion extends React.Component<IActualizacionMasivaP
   }
 
   public getItemsMain() {
-    this.props.massiveUpdate.getItemsList('RegistroSig')
+    //lista, campos, filtro, expand, orden, cantidad registros, url
+    this.props.massiveUpdate.gettingItemsList('RegistroSig', '', '', '', '', '', '') 
       .then((resRegister: any) => {
         this.setState({ dataRegisterSig: resRegister })
       })
   }
 
   public getItemsDataStart() {
-    this.props.massiveUpdate.getItemsList('Macroproceso')
+    this.props.massiveUpdate.gettingItemsList('Macroproceso', '', '', '', '', '', '')
       .then((resMacro: any) => {
         this.setState({ dataMacroproceso: resMacro })
       })
-    this.props.massiveUpdate.getItemsList('Proceso')
+    this.props.massiveUpdate.gettingItemsList('Proceso', '', '', '', '', '', '')
       .then((resProcess: any) => {
         this.setState({ dataProceso: resProcess })
       })

@@ -22,7 +22,10 @@ public pnp :PNP;
       <section >
         <div className='container'> 
             <BuscarDocumentos Search={this.pnp} context={this.props.context}></BuscarDocumentos>  
-        </div> 
+        </div>
+        <footer className="text-center">
+                  <span className="text-muted">___________Versión 1.0.0.6___________</span>
+        </footer> 
       </section>
     );
   }

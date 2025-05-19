@@ -66,8 +66,9 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
   async getDataListTask(): Promise<void> {
     try {
       const [resResponsable, resResolutor] = await Promise.all([
-        this.props.pnp.getItemsList('Responsables', 'Responsable/Title,Responsable/Id,Responsable/EMail,*', '', 'Responsable'),
-        this.props.pnp.getItemsList('Resolutores', 'ID,Title,Analista/Id,Analista/Title,Analista/EMail,*', '', 'Analista'),
+        //lista, campos, filtro, expand, orden, cantidad registros, url
+        this.props.pnp.gettingItemsList('Responsables', 'Responsable/Title,Responsable/Id,Responsable/EMail,*', '', 'Responsable','', '', 'https://claromovilco.sharepoint.com/sites/PortaldeProcesosyMejoracontinua'), 
+        this.props.pnp.gettingItemsList('Resolutores', 'ID,Title,Analista/Id,Analista/Title,Analista/EMail,*', '', 'Analista', '', '', 'https://claromovilco.sharepoint.com/sites/PortaldeProcesosyMejoracontinua')
       ]);
 
       const FilterResponsable = resResponsable.find((x: any) => x.Responsable.EMail === this.state.emailInto || x.Responsable.Title === this.state.nameInto);
@@ -111,13 +112,13 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
       const arrayDireccion = new Array();;
       const arrayNorma = new Array();;
 
-      const resResolutor = await this.props.pnp.getItemsList('Resolutores', 'ID,Title,Analista/Id,Analista/Title,*', '', 'Analista');
+      const resResolutor = await this.props.pnp.gettingItemsList('Resolutores', 'ID,Title,Analista/Id,Analista/Title,*', '', 'Analista', '', '', 'https://claromovilco.sharepoint.com/sites/PortaldeProcesosyMejoracontinua');
       this.setState({ arraySelectResolutors: resResolutor });
 
       const resTypeDocument = await this.props.pnp.getItemsList('TipoDocumento', 'ID,Title,Codigo,*', '', '');
       this.setState({ arraySelectTypeDocument: resTypeDocument });
 
-      const resMacroprocess = await this.props.pnp.getItemsList('Macroproceso', 'ID,Title,*', '', '');
+      const resMacroprocess = await this.props.pnp.gettingItemsList('Macroproceso', 'ID,Title,*', '', '', '','', 'https://claromovilco.sharepoint.com/sites/PortaldeProcesosyMejoracontinua');
       this.setState({ arraySelectMacroprocess: resMacroprocess });
 
       const resTypeSolution = await this.props.pnp.getItemsList('TipoSolucion', 'ID,Title,*', '', '');
@@ -166,7 +167,7 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
   public completeProcess(targetProcess: any) {
     return new Promise((resolve) => {
       if (this.state.isProcessDisabled === false) {
-        this.props.pnp.getItemsList(`Proceso`, `ID,Title,Macroproceso/Id,Macroproceso/TituloSinNumeral,*`, `Macroproceso/TituloSinNumeral eq '${targetProcess}'`, `Macroproceso`)
+        this.props.pnp.getItemsList(`Proceso`, `ID,Title,Macroproceso/Id,Macroproceso/TituloSinNumeral,*`, `Macroproceso/TituloSinNumeral eq '${targetProcess}'`, `Macroproceso`,'', '', 'https://claromovilco.sharepoint.com/sites/PortaldeProcesosyMejoracontinua')
           .then((resProcess: any) => {
             this.setState({
               arraySelectProcess: resProcess,
@@ -530,7 +531,7 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
         contManual: this.state.codeConsecutive
       }
     }
-    this.props.pnp.updateItemList('Proceso', this.state.idProcess, MedatacounterTypeDocument)
+    this.props.pnp.updateItemInOtherSite('Proceso', this.state.idProcess, MedatacounterTypeDocument,'https://claromovilco.sharepoint.com/sites/PortaldeProcesosyMejoracontinua')
       .then((res: any) => {
         console.log(res);
       })

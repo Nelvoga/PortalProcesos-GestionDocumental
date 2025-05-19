@@ -165,6 +165,26 @@ export class PNP {
       });
   }
 
+
+  public async updateItemInOtherSite(
+  listName: string,
+  itemId: number,
+  data: any,
+  webUrl: string
+): Promise<void> {
+  try {
+    const web = new Web(webUrl);
+    const list = web.lists.getByTitle(listName);
+
+    await list.items.getById(itemId).update(data);
+
+    console.log(`Elemento ${itemId} actualizado correctamente.`);
+  } catch (error) {
+    console.error("Error al actualizar el elemento:", error);
+    throw error;
+  }
+}
+
   public deleteItemList(
     listName: string,
     id: number
