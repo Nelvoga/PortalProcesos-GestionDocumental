@@ -167,7 +167,7 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
   public completeProcess(targetProcess: any) {
     return new Promise((resolve) => {
       if (this.state.isProcessDisabled === false) {
-        this.props.pnp.getItemsList(`Proceso`, `ID,Title,Macroproceso/Id,Macroproceso/TituloSinNumeral,*`, `Macroproceso/TituloSinNumeral eq '${targetProcess}'`, `Macroproceso`,'', '', 'https://claromovilco.sharepoint.com/sites/PortaldeProcesosyMejoracontinua')
+        this.props.pnp.gettingItemsList(`Proceso`, `ID,Title,Macroproceso/Id,Macroproceso/TituloSinNumeral,*`, `Macroproceso/TituloSinNumeral eq '${targetProcess}'`, `Macroproceso`,'', '', 'https://claromovilco.sharepoint.com/sites/PortaldeProcesosyMejoracontinua')
           .then((resProcess: any) => {
             this.setState({
               arraySelectProcess: resProcess,

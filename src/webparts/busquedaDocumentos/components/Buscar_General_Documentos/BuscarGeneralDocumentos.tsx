@@ -26,14 +26,14 @@ export default class BDocumentos extends React.Component<IBusquedaGeneralDocumen
     public getItemsRegisterSig() {
         var arraySelect = new Array();
 
-        this.props.Search.gettingItemsList('RegistroSig', '', `EstadoRegistro eq 'Publicado'`, '')
+        this.props.Search.gettingItemsList('RegistroSig', 'ID,EstadoRegistro,*', `EstadoRegistro eq 'Publicado'`, '','','','')
             .then((resRegisterSig: any) => {
                 if (resRegisterSig.length > 0) {
                     resRegisterSig.map((Register: any) => (
                         arraySelect.push({ label: Register.Title }) 
                     ))
                 }
-                this.setState({ ArrayRegistersSig: arraySelect, ArrayRegisterSigAll: resRegisterSig });
+                this.setState({ ArrayRegistersSig: arraySelect, ArrayRegisterSigAll: resRegisterSig }, () => {console.log(this.state.ArrayRegistersSig) });
 
             })
     }
