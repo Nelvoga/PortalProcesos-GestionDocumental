@@ -55,7 +55,7 @@ export default class GestionDocumental extends React.Component<IGestionDocumenta
           <AdminDocumentos EmailIntoTas={this.state.idInto} idNameDisplay={this.state.intoName} pnp={this.pnp} context={this.props.context}></AdminDocumentos>
         </div>
         <footer className="text-center">
-          <span className="text-muted">___________Versión 1.0.0.6___________</span>
+          <span className="text-muted">___________Versión 1.0.1.7___________</span>
         </footer>
       </section>
     );
