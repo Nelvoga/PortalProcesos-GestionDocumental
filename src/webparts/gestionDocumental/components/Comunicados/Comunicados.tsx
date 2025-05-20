@@ -254,16 +254,17 @@ export default class ComunicadosDocumentos extends React.Component<IComunicadosP
                                 {this.state.arrayTableCommunication.length > 0 ?
                                     <div className="tableComunicado" id='DivContent' >
                                         <table id="tableComunicado" style={{ borderCollapse: 'collapse', width: '100%', border:1 } }  >
-                                            <thead style={{ backgroundColor: '#d0262f', color: 'aliceblue' }}>
+                                            <thead>
                                                 <tr>
-                                                    <th scope="col" style={{ border: '1px solid black', padding: '8px' }} >Macroproceso</th>
-                                                    <th scope="col" style={{ border: '1px solid black', padding: '8px' }} >Nombre del Documento</th>
-                                                    <th scope="col" style={{ border: '1px solid black', padding: '8px' }} >Objetivo</th>
-                                                    <th scope="col" style={{ border: '1px solid black', padding: '8px' }} >Versión</th>
-                                                    <th scope="col" style={{ border: '1px solid black', padding: '8px' }}>Cambio realizado </th>
-                                                    <th scope="col" style={{ border: '1px solid black', padding: '8px' }}>Dueño</th>
-                                                    <th scope="col" style={{ border: '1px solid black', padding: '8px' }}>Link</th>
-                                                    <th scope="col" style={{ border: '1px solid black', padding: '8px' }}></th>
+                                                    <th scope="col" style={{ border: '1px solid black', padding: '8px', backgroundColor: '#d0262f', color: 'aliceblue' }} >Macroproceso</th>
+                                                    <th scope="col" style={{ border: '1px solid black', padding: '8px', backgroundColor: '#d0262f', color: 'aliceblue' }} >Nombre del Documento</th>
+                                                    <th scope="col" style={{ border: '1px solid black', padding: '8px', backgroundColor: '#d0262f', color: 'aliceblue' }} >Tipo de Documento</th>
+                                                    <th scope="col" style={{ border: '1px solid black', padding: '8px', backgroundColor: '#d0262f', color: 'aliceblue' }} >Objetivo</th>
+                                                    <th scope="col" style={{ border: '1px solid black', padding: '8px', backgroundColor: '#d0262f', color: 'aliceblue' }} >Versión</th>
+                                                    <th scope="col" style={{ border: '1px solid black', padding: '8px', backgroundColor: '#d0262f', color: 'aliceblue' }}>Cambio realizado </th>
+                                                    <th scope="col" style={{ border: '1px solid black', padding: '8px', backgroundColor: '#d0262f', color: 'aliceblue' }}>Dueño</th>
+                                                    <th scope="col" style={{ border: '1px solid black', padding: '8px', backgroundColor: '#d0262f', color: 'aliceblue' }}>Link</th>
+                                                    <th scope="col"></th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -271,16 +272,17 @@ export default class ComunicadosDocumentos extends React.Component<IComunicadosP
                                                     this.state.arrayTableCommunication.map((items: any, index: any) => (
 
                                                         <tr id={items.ID}>
-                                                            <td style={{ width: '80px', textAlign: "center", border: '1px solid black', padding: '8px' }}>
-                                                                <img src={items.imagenMacroproceso} alt="Imagen Macroproceso" width="80" />
+                                                            <td style={{ width: '160px', textAlign: "center", border: '1px solid black', padding: '8px' }}>
+                                                                <img src={items.imagenMacroproceso} alt="Imagen Macroproceso" width="200" />
                                                             </td>
-                                                            <td style={ items.TipoProceso === 'Valor' ? { width: '200px',backgroundColor: '#006E83', color: 'aliceblue' , border: '1px solid black', padding: '8px' } : { width: '200px',backgroundColor: '#FF810F', color: 'aliceblue', border: '1px solid black', padding: '8px' }}>{items.Title}</td>
-                                                            <td style={{ border: '1px solid black', padding: '8px', width: '250px' }}>{<textarea cols={30} rows={5} className="form-control NewRequired" name={`Objetivo${index + 1}`} value={this.state[`Objetivo${index + 1}`]} onChange={(e) => { this.textareaChange(e.target) }} placeholder="Ingrese el objetivo" ></textarea>}</td>
+                                                            <td style={ items.TipoProceso === 'Valor' ? { width: '100px',backgroundColor: '#006E83', color: 'aliceblue' , border: '1px solid black', padding: '8px' } : { width: '200px',backgroundColor: '#FF810F', color: 'aliceblue', border: '1px solid black', padding: '8px' }}>{items.Title}</td>
+                                                            <td style={{width: '60px',textAlign: "center",border: '1px solid black', padding: '8px'}}>{items.TipoDocumento}</td>
+                                                            <td style={{ border: '1px solid black', padding: '8px', width: '250px' }}>{<textarea cols={30} rows={10} className="form-control NewRequired" name={`Objetivo${index + 1}`} value={this.state[`Objetivo${index + 1}`]} onChange={(e) => { this.textareaChange(e.target) }} placeholder="Ingrese el objetivo" ></textarea>}</td>
                                                             <td style={{width: '60px',textAlign: "center",border: '1px solid black', padding: '8px'}}>{items.Version}</td>
-                                                            <td style={{ width: '250px', border: '1px solid black', padding: '8px' }}>{<textarea cols={30} rows={5} className="form-control NewRequired" name={`Cambio${index + 1}`} value={this.state[`Cambio${index + 1}`]} onChange={(e) => { this.textareaChange(e.target) }} placeholder="Ingrese el cambio realizado" ></textarea>}</td>
+                                                            <td style={{ width: '250px', border: '1px solid black', padding: '8px' }}>{<textarea cols={30} rows={10} className="form-control NewRequired" name={`Cambio${index + 1}`} value={this.state[`Cambio${index + 1}`]} onChange={(e) => { this.textareaChange(e.target) }} placeholder="Ingrese el cambio realizado" ></textarea>}</td>
                                                             <td style={{ width: '120px', border: '1px solid black', padding: '8px' }}>{items.Lider}</td>
                                                             <td style={{ width: '50px', border: '1px solid black', padding: '8px' }}><div>{<a href={decodeURIComponent(items.UrlDocumento)}><img src={`${siteBase}/Imagenes/claro-ico.png`} width="17px" /></a>}</div></td>
-                                                            <td style={{ width: '50px', textAlign: "center", border: '1px solid black', padding: '8px'  }}><div onClick={() => { this.deleteRowTable(items.ID) }}>
+                                                            <td><div onClick={() => { this.deleteRowTable(items.ID) }}>
                                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-trash3-fill" viewBox="0 0 16 16">
                                                                     <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5" />
                                                                 </svg>
