@@ -7,7 +7,7 @@ import { Modal } from 'react-bootstrap';
 import Select from 'react-select';
 import ComunicadosDocumentos from '../Comunicados/Comunicados'
 import ActualizacionMasiva from '../Actualizacion_Masiva/ActualizacionMasiva';
-
+import ActualizacionMasivaDev from '../ActualizacionMasivaDev/MassEditRegistroSig'
 
 export interface IAdminDocumentosProps {
   pnp: any;
@@ -712,9 +712,12 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
                     <div className='col'><button type="button" className="btn btn-outline-danger" onClick={() => this.setState({ handleShow: true, ModalTitle: "Nuevo Registro", save: 'Guardar' }, () => this.formClear())}>Nuevo Registro</button></div>
                     <div className='col'><button type="button" className="btn btn-outline-danger" onClick={() => this.viewComunicados()} >Comunicados</button></div>
                     {this.state.AuthorizedResponsable ?
-                    <div className='col'><button type="button" className="btn btn-outline-danger" onClick={() =>this.viewActualizacion()}>Actualizacion Masiva</button></div>
-                      :null
+                    <div>
+                        <div className='col'><button type="button" className="btn btn-outline-danger" onClick={() =>this.viewActualizacion()}>Actualizacion Masiva</button></div>
+                    </div>
+                    :null
                     }
+                    
                   </div>
                   <div className="d-flex flex-column justify-content-start table-responsive">
                     <table className="table table-striped table-sm table-hover" id="tableRegisters">
@@ -1024,6 +1027,9 @@ export default class GDocumental extends React.Component<IAdminDocumentosProps, 
         {this.state.viewActualizacion ?
           <ActualizacionMasiva massiveUpdate={this.props.pnp} viewActualizacion={() => this.viewActualizacion()}></ActualizacionMasiva>
           : null}
+        {this.state.viewActualizacion ?
+          <ActualizacionMasivaDev massiveUpdateDev={this.props.pnp} viewActualizacion={() => this.viewActualizacion()}></ActualizacionMasivaDev>
+          : null}  
       </section>
     );
   }

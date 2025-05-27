@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { Atom } from 'react-loading-indicators';
-
 import Swal from 'sweetalert2';
 
 
@@ -34,18 +33,18 @@ export default class Actualizacion extends React.Component<IActualizacionMasivaP
 
   public getItemsMain() {
     //lista, campos, filtro, expand, orden, cantidad registros, url
-    this.props.massiveUpdate.gettingItemsList('RegistroSig', 'ID,*', '', '', '', '', '') 
+    this.props.massiveUpdate.gettingItemsList('RegistroSig', 'ID,*', '', '', '', '', 'https://claromovilco.sharepoint.com/sites/PortaldeProcesosyMejoracontinua/DesarrolloProcesos') 
       .then((resRegister: any) => {
         this.setState({ dataRegisterSig: resRegister })
       })
   }
 
   public getItemsDataStart() {
-    this.props.massiveUpdate.gettingItemsList('Macroproceso', 'ID,*', '', '', '', '', 'https://claromovilco.sharepoint.com/sites/PortaldeProcesosyMejoracontinua')
+    this.props.massiveUpdate.gettingItemsList('Macroproceso', 'ID,*', '', '', '', '', 'https://claromovilco.sharepoint.com/sites/PortaldeProcesosyMejoracontinua/DesarrolloProcesos')
       .then((resMacro: any) => {
         this.setState({ dataMacroproceso: resMacro })
       })
-    this.props.massiveUpdate.gettingItemsList('Proceso', 'ID,*', '', '', '', '', 'https://claromovilco.sharepoint.com/sites/PortaldeProcesosyMejoracontinua')
+    this.props.massiveUpdate.gettingItemsList('Proceso', 'ID,*', '', '', '', '', 'https://claromovilco.sharepoint.com/sites/PortaldeProcesosyMejoracontinua/DesarrolloProcesos')
       .then((resProcess: any) => {
         this.setState({ dataProceso: resProcess })
       })
@@ -89,7 +88,7 @@ export default class Actualizacion extends React.Component<IActualizacionMasivaP
           CodigoDocumento: newCodesMacro[j]
         }
         this.setState({ flagLoanding: true })
-        this.props.massiveUpdate.updateItemList('RegistroSig', idRegistersMacro[j], mtDataCode)
+        this.props.massiveUpdate.updateItemList('RegistroSig', idRegistersMacro[j], mtDataCode,'', 'https://claromovilco.sharepoint.com/sites/PortaldeProcesosyMejoracontinua/DesarrolloProcesos')
           .then((res: any) => {
 
             if (res && count >= Elementos - 1) {
@@ -120,7 +119,7 @@ export default class Actualizacion extends React.Component<IActualizacionMasivaP
           CodigoDocumento: newCodesProcess[b]
         }
         this.setState({ flagLoanding: true })
-        this.props.massiveUpdate.updateItemList('RegistroSig', idRegisterProcess[b], dataCodeP)
+        this.props.massiveUpdate.updateItemList('RegistroSig', idRegisterProcess[b], dataCodeP,'','https://claromovilco.sharepoint.com/sites/PortaldeProcesosyMejoracontinua/DesarrolloProcesos')
           .then((res: any) => {
 
             if (res && count >= Items - 1) {

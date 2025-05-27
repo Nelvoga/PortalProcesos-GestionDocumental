@@ -144,26 +144,33 @@ export class PNP {
   }
 
   public updateItemList(
-    listname: string,
-    id: number,
-    properties: any,
-    attachment?: File
-  ): Promise<any> {
+  listname: string,
+  id: number,
+  properties: any,
+  attachment?: File,
+  siteUrl?: string // ¡Aquí está el nuevo parámetro opcional!
+): Promise<any> {
+  let targetWeb = this.web; // Por defecto, usa el web actual
 
-    let list = this.web.lists.getByTitle(listname);
-    return list.items
-      .getById(id)
-      .update(properties)
-      .then(res => {
-        if (attachment) {
-          return this.finishSave(res.item, attachment, attachment.name).then(item => {
-            return item;
-          });
-        } else {
-          return res;
-        }
-      });
+  // Si se proporciona un siteUrl, crea una nueva instancia de Web que apunte a ese sitio
+  if (siteUrl) {
+    targetWeb = new Web(siteUrl);
   }
+
+  let list = targetWeb.lists.getByTitle(listname); // Usa el 'web' correcto
+  return list.items
+    .getById(id)
+    .update(properties)
+    .then(res => {
+      if (attachment) {
+          return this.finishSave(res.item, attachment, attachment.name).then(item => {
+          return item;
+        });
+      } else {
+        return res;
+      }
+    });
+}
 
 
   public async updateItemInOtherSite(
@@ -265,7 +272,7 @@ export class PNP {
             .then(resFile => {
                 console.log("Archivo subido correctamente:", resFile);
 
-                return resFile.file.getItem(); 
+                return resFile.file.getItem().catch((): null => null); 
             })
             .then(item => {
                 console.log("Actualizando metadatos...");
