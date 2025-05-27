@@ -144,7 +144,7 @@ class MassEditRegistroSig extends React.Component<IActualizacionMasivaProps, Sta
       }));
       alert("Actualización masiva completada.");
       await this.loadData();
-      this.setState({ selectedItems: [], massUpdateMacro: null, massUpdateProceso: null });
+      this.setState({ selectedItems: [], massUpdateMacro: null, massUpdateProceso: null }); 
     } catch (err) {
       console.error("Error en actualización masiva:", err);
     }
@@ -155,7 +155,7 @@ class MassEditRegistroSig extends React.Component<IActualizacionMasivaProps, Sta
     const update = individualUpdates[id];
 
     if (!update?.macro || !update?.proceso) {
-      alert("Selecciona ambos valores para actualizar.");
+      alert("Selecciona ambos valores para actualizar."); 
       return;
     }
 
