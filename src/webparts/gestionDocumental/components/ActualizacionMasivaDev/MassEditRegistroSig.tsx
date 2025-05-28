@@ -1,11 +1,8 @@
 import * as React from 'react';
-import { sp } from '@pnp/sp/presets/all';
 
 // Definición de las interfaces para Props y State
 interface IActualizacionMasivaProps {
-  massiveUpdateDev: {
-    gettingItemsList: (listName: string, select: string, expand: string, filter: string, orderby: string, top: string, siteUrl: string) => Promise<any[]>;
-  };
+  massiveUpdateDev: any;
   viewActualizacion: any; // Ajusta este tipo si tienes una definición más específica
 }
 
@@ -134,13 +131,19 @@ class MassEditRegistroSig extends React.Component<IActualizacionMasivaProps, Sta
 
         // Construir el nuevo código: CodigoMacroproceso + CodigoProceso (sin guion intermedio) + Sufijo Original
         newCodigoDocumento = `${selectedMacro.CodigoMacroproceso}${selectedProceso.CodigoProceso}${suffix}`;
-
-        return sp.web.getList('/sites/PortaldeProcesosyMejoracontinua/DesarrolloProcesos/Lists/RegistroSig')
-          .items.getById(id).update({
+        var dataUpdateRegisterAll= {
             Macroproceso: selectedMacro.TituloSinNumeral,
             Proceso: selectedProceso.Title,
-            CodigoDocumento: newCodigoDocumento // Actualizar el campo CodigoDocumento
-          });
+            CodigoDocumento: newCodigoDocumento
+        }
+        this.props.massiveUpdateDev.updateItemList('RegistroSig', id, dataUpdateRegisterAll,'','https://claromovilco.sharepoint.com/sites/PortaldeProcesosyMejoracontinua/DesarrolloProcesos')
+            .then((res: any) => {
+              console.log("Actualización, "+ {id});
+             })
+
+            .catch((err: any) => {
+              console.error(`Error al actualizar el ítem con ID ${id}:`, err);
+            });
       }));
       alert("Actualización masiva completada.");
       await this.loadData();
@@ -188,15 +191,20 @@ class MassEditRegistroSig extends React.Component<IActualizacionMasivaProps, Sta
 
     // Construir el nuevo código: CodigoMacroproceso + CodigoProceso (sin guion intermedio) + Sufijo Original
     newCodigoDocumento = `${selectedMacro.CodigoMacroproceso}${selectedProceso.CodigoProceso}${suffix}`;
-
-    try {
-      await sp.web.getList('/sites/PortaldeProcesosyMejoracontinua/DesarrolloProcesos/Lists/RegistroSig')
-        .items.getById(id).update({
+    var dataUpdateRegisterOnly = {
           Macroproceso: selectedMacro.TituloSinNumeral,
           Proceso: selectedProceso.Title,
           CodigoDocumento: newCodigoDocumento
-        });
-      alert(`Registro ${id} actualizado.`);
+    };
+    try {
+      await this.props.massiveUpdateDev.updateItemList('RegistroSig', id, dataUpdateRegisterOnly,'','https://claromovilco.sharepoint.com/sites/PortaldeProcesosyMejoracontinua/DesarrolloProcesos')
+            .then((res: any) => {
+              alert(`Registro ${id} actualizado.`);
+             })
+
+            .catch((err: any) => {
+              console.error(`Error al actualizar el ítem con ID ${id}:`, err);
+            }); 
       await this.loadData();
     } catch (err) {
       console.error(`Error al actualizar ${id}:`, err);
